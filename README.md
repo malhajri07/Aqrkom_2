@@ -25,11 +25,30 @@ aqarkom/
 └── RealEstate_CRM_PRD_Saudi_Comprehensive.xlsx
 ```
 
+## Environment Setup
+
+```bash
+# Copy example env and adjust if needed
+cp .env.example .env
+
+# Variables (see .env.example):
+# - DATABASE_URL   PostgreSQL connection string
+# - PORT           API port (default: 3000)
+# - JWT_SECRET     Auth token secret (change in production)
+```
+
 ## Quick Start
 
 ```bash
 # Install dependencies
 pnpm install
+
+# Start PostgreSQL (Docker)
+docker compose up -d db
+
+# Run migrations & seed
+pnpm db:migrate
+pnpm db:seed
 
 # Run development (web + api)
 pnpm dev

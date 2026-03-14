@@ -3,6 +3,7 @@
  * Based on PRD: RealEstate_CRM_PRD_Saudi_Comprehensive.xlsx
  */
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';

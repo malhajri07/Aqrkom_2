@@ -1,6 +1,7 @@
 /**
  * Run migrations - execute SQL files in order
  */
+import 'dotenv/config';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import pg from 'pg';

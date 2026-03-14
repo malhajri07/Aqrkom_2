@@ -1,7 +1,8 @@
 /**
- * Seed development database - run with: pnpm exec tsx apps/api/src/seed.ts
+ * Seed development database - run with: pnpm db:seed
  * Login: admin@aqarkom.com / Test123!
  */
+import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import { query } from './db.js';
 
