@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { contacts, activities } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { CONTACT_TYPES } from '@aqarkom/shared';
+import { HiOutlineArrowRight } from 'react-icons/hi2';
 
 export function ContactDetail() {
   const { id } = useParams();
@@ -27,7 +28,7 @@ export function ContactDetail() {
         <h1 className="text-2xl font-bold">
           {contact.first_name_ar} {contact.last_name_ar}
         </h1>
-        <Link to="/contacts" className="text-primary-600">{t('← العودة', '← Back')}</Link>
+        <Link to="/contacts" className="text-primary-600 flex items-center gap-1"><HiOutlineArrowRight className="w-4 h-4 rtl:rotate-180" />{t('العودة', 'Back')}</Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

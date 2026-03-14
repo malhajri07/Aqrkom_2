@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { properties } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { PROPERTY_TYPES, TRANSACTION_TYPES } from '@aqarkom/shared';
+import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
 
 export function Properties() {
   const { t } = useLanguage();
@@ -75,7 +76,7 @@ export function Properties() {
         <div className="text-center py-12">{t('جاري التحميل...', 'Loading...')}</div>
       ) : list.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center shadow-sm">
-          <p className="text-6xl mb-4">🏢</p>
+          <HiOutlineBuildingOffice2 className="w-16 h-16 mx-auto mb-4 text-slate-400" />
           <h3 className="text-lg font-semibold">{t('لا توجد إعلانات بعد', 'No listings yet')}</h3>
           <Link to="/properties/new" className="mt-6 inline-block px-6 py-3 bg-primary-600 text-white rounded-lg">
             {t('إضافة أول إعلان', 'Add First Listing')}
@@ -88,7 +89,7 @@ export function Properties() {
               {Array.isArray(p.photos) && p.photos[0] ? (
                 <img src={p.photos[0] as string} alt="" className="w-full h-40 object-cover" />
               ) : (
-                <div className="w-full h-40 bg-slate-200 flex items-center justify-center text-4xl">🏢</div>
+                <div className="w-full h-40 bg-slate-200 flex items-center justify-center"><HiOutlineBuildingOffice2 className="w-12 h-12 text-slate-400" /></div>
               )}
               <div className="p-4">
                 <p className="font-medium truncate">{String(p.title_ar)}</p>

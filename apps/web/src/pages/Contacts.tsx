@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { contacts } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { CONTACT_TYPES } from '@aqarkom/shared';
+import { HiOutlineUsers } from 'react-icons/hi2';
 
 export function Contacts() {
   const { t } = useLanguage();
@@ -83,7 +84,7 @@ export function Contacts() {
         <div className="text-center py-12">{t('جاري التحميل...', 'Loading...')}</div>
       ) : list.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center shadow">
-          <p className="text-6xl mb-4">👥</p>
+          <HiOutlineUsers className="w-16 h-16 mx-auto mb-4 text-slate-400" />
           <h3 className="text-lg font-semibold">{t('لا يوجد عملاء بعد', 'No contacts yet')}</h3>
           <button onClick={() => setShowForm(true)} className="mt-6 px-6 py-3 bg-primary-600 text-white rounded-lg">
             {t('إضافة أول عميل', 'Add First Contact')}

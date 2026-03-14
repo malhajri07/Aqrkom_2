@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { requests, properties } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { HiOutlineArrowRight } from 'react-icons/hi2';
 
 export function RequestDetail() {
   const { id } = useParams();
@@ -47,7 +48,7 @@ export function RequestDetail() {
     <div className="max-w-4xl">
       <div className="flex justify-between items-start mb-6">
         <h1 className="text-2xl font-bold">{t('تفاصيل الطلب', 'Request Details')}</h1>
-        <Link to="/requests" className="text-primary-600">{t('← العودة', '← Back')}</Link>
+        <Link to="/requests" className="text-primary-600 flex items-center gap-1"><HiOutlineArrowRight className="w-4 h-4 rtl:rotate-180" />{t('العودة', 'Back')}</Link>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow space-y-4">

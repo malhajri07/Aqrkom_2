@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { dashboard } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
+import {
+  HiOutlineBuildingOffice2,
+  HiOutlineInboxArrowDown,
+  HiOutlineBanknotes,
+  HiOutlineChartBarSquare,
+  HiOutlinePlusCircle,
+  HiOutlineClipboardDocumentList,
+  HiOutlineUserGroup,
+} from 'react-icons/hi2';
 
 export function Dashboard() {
   const { t } = useLanguage();
@@ -24,22 +33,22 @@ export function Dashboard() {
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border">
           <p className="text-sm text-slate-500">{t('إعلانات نشطة', 'Active Listings')}</p>
           <p className="text-2xl font-bold mt-1">{kpis.activeListings}</p>
-          <span className="text-3xl">🏢</span>
+          <HiOutlineBuildingOffice2 className="w-8 h-8 text-primary-500 mt-1" />
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border">
           <p className="text-sm text-slate-500">{t('طلبات مفتوحة', 'Open Requests')}</p>
           <p className="text-2xl font-bold mt-1">{kpis.openRequests}</p>
-          <span className="text-3xl">📥</span>
+          <HiOutlineInboxArrowDown className="w-8 h-8 text-amber-500 mt-1" />
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border">
           <p className="text-sm text-slate-500">{t('قيمة الصفقات', 'Pipeline Value')}</p>
           <p className="text-2xl font-bold mt-1">{kpis.pipelineValue.toLocaleString('ar-SA')} ر.س</p>
-          <span className="text-3xl">💰</span>
+          <HiOutlineBanknotes className="w-8 h-8 text-green-500 mt-1" />
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border">
           <p className="text-sm text-slate-500">{t('عمولة محققة', 'Commission Earned')}</p>
           <p className="text-2xl font-bold mt-1">{kpis.commissionEarned.toLocaleString('ar-SA')} ر.س</p>
-          <span className="text-3xl">📈</span>
+          <HiOutlineChartBarSquare className="w-8 h-8 text-indigo-500 mt-1" />
         </div>
       </div>
 
@@ -47,15 +56,15 @@ export function Dashboard() {
         <h2 className="text-lg font-semibold mb-4">{t('بدء سريع', 'Quick Start')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link to="/properties/new" className="flex items-center gap-3 p-4 rounded-lg border hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-            <span className="text-2xl">➕</span>
+            <HiOutlinePlusCircle className="w-6 h-6 text-primary-600 flex-shrink-0" />
             <span>{t('إضافة إعلان عقاري', 'Add Property Listing')}</span>
           </Link>
           <Link to="/requests/new" className="flex items-center gap-3 p-4 rounded-lg border hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-            <span className="text-2xl">📋</span>
+            <HiOutlineClipboardDocumentList className="w-6 h-6 text-primary-600 flex-shrink-0" />
             <span>{t('طلب عقاري جديد', 'New Property Request')}</span>
           </Link>
           <Link to="/contacts" className="flex items-center gap-3 p-4 rounded-lg border hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-            <span className="text-2xl">👤</span>
+            <HiOutlineUserGroup className="w-6 h-6 text-primary-600 flex-shrink-0" />
             <span>{t('إدارة العملاء', 'Manage Contacts')}</span>
           </Link>
         </div>

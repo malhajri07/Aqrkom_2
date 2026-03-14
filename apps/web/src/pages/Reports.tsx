@@ -1,4 +1,5 @@
 import { useLanguage } from '../context/LanguageContext';
+import { HiOutlineChartBar } from 'react-icons/hi2';
 
 export function Reports() {
   const { t } = useLanguage();
@@ -15,7 +16,7 @@ export function Reports() {
       </header>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center shadow-sm border border-slate-200 dark:border-slate-700">
-        <p className="text-6xl mb-4">📈</p>
+        <HiOutlineChartBar className="w-16 h-16 mx-auto mb-4 text-slate-400" />
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
           {t('التقارير قريباً', 'Reports coming soon')}
         </h3>

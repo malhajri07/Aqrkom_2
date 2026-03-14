@@ -2,10 +2,34 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { NAV_ITEMS } from '@aqarkom/shared';
+import {
+  HiOutlineSquares2X2,
+  HiOutlineBuildingOffice2,
+  HiOutlineInboxArrowDown,
+  HiOutlineUsers,
+  HiOutlineViewColumns,
+  HiOutlineCurrencyDollar,
+  HiOutlineChartBar,
+  HiOutlineCog6Tooth,
+  HiOutlineGlobeAlt,
+  HiOutlineArrowRightOnRectangle,
+} from 'react-icons/hi2';
+import type { IconType } from 'react-icons';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
+
+const NAV_ICON_MAP: Record<string, IconType> = {
+  'layout-dashboard': HiOutlineSquares2X2,
+  building: HiOutlineBuildingOffice2,
+  inbox: HiOutlineInboxArrowDown,
+  users: HiOutlineUsers,
+  kanban: HiOutlineViewColumns,
+  handshake: HiOutlineCurrencyDollar,
+  'bar-chart': HiOutlineChartBar,
+  settings: HiOutlineCog6Tooth,
+};
 
 export function Layout({ children }: LayoutProps) {
   const { t, toggleLanguage, isRtl } = useLanguage();
@@ -27,16 +51,19 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.id}
-              to={item.path}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              <span className="text-lg">{getIcon(item.icon)}</span>
-              <span>{t(item.ar, item.en)}</span>
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const Icon = NAV_ICON_MAP[item.icon] || HiOutlineSquares2X2;
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span>{t(item.ar, item.en)}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Language toggle & logout */}
@@ -45,12 +72,14 @@ export function Layout({ children }: LayoutProps) {
             onClick={toggleLanguage}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm"
           >
+            <HiOutlineGlobeAlt className="w-4 h-4" />
             <span>{isRtl ? 'EN' : 'عربي'}</span>
           </button>
           <button
             onClick={() => { logout(); window.location.href = '/login'; }}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm"
           >
+            <HiOutlineArrowRightOnRectangle className="w-4 h-4" />
             {t('تسجيل الخروج', 'Logout')}
           </button>
         </div>
@@ -62,18 +91,4 @@ export function Layout({ children }: LayoutProps) {
       </main>
     </div>
   );
-}
-
-function getIcon(name: string) {
-  const icons: Record<string, string> = {
-    'layout-dashboard': '📊',
-    building: '🏢',
-    inbox: '📥',
-    users: '👥',
-    kanban: '📋',
-    handshake: '🤝',
-    'bar-chart': '📈',
-    settings: '⚙️',
-  };
-  return icons[name] || '•';
 }
