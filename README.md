@@ -43,14 +43,17 @@ pnpm dev:api   # http://localhost:3000
 
 - [x] Monorepo structure
 - [x] Arabic RTL shell, bilingual UI
-- [x] Navigation (Dashboard, Properties, Requests, Contacts, Transactions)
-- [x] PostgreSQL schema (properties, contacts, requests, transactions, users)
-- [ ] Auth (Nafath SSO + email/OTP)
-- [ ] Property listing CRUD
-- [ ] Request matching (DealApp-style)
-- [ ] CRM contacts
-- [ ] Transaction pipeline
-- [ ] Map integration
+- [x] Navigation (Dashboard, Properties, Requests, Contacts, Pipeline, Transactions)
+- [x] PostgreSQL schema (properties, contacts, requests, transactions, users, activities, tasks, documents)
+- [x] Auth (JWT, email/password, RBAC)
+- [x] Property listing CRUD (PM-001 to PM-009)
+- [x] Request matching (RM-001 to RM-006, DealApp-style)
+- [x] CRM contacts (CRM-001, CRM-004, CRM-006)
+- [x] Transaction pipelines (TM-001 to TM-008)
+- [x] Dashboard KPIs (RPT-001)
+- [x] Commission calculator (TM-005)
+- [ ] Map integration (PM-005) - placeholder
+- [ ] Nafath SSO (GOV-002) - requires API access
 
 ## Saudi Compliance (PRD)
 

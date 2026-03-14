@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { NAV_ITEMS } from '@aqarkom/shared';
 
 interface LayoutProps {
@@ -8,6 +9,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { t, toggleLanguage, isRtl } = useLanguage();
+  const { logout } = useAuth();
 
   return (
     <div className="min-h-screen flex" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -37,13 +39,19 @@ export function Layout({ children }: LayoutProps) {
           ))}
         </nav>
 
-        {/* Language toggle & user */}
+        {/* Language toggle & logout */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
           <button
             onClick={toggleLanguage}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm"
           >
             <span>{isRtl ? 'EN' : 'عربي'}</span>
+          </button>
+          <button
+            onClick={() => { logout(); window.location.href = '/login'; }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm"
+          >
+            {t('تسجيل الخروج', 'Logout')}
           </button>
         </div>
       </aside>
@@ -62,6 +70,7 @@ function getIcon(name: string) {
     building: '🏢',
     inbox: '📥',
     users: '👥',
+    kanban: '📋',
     handshake: '🤝',
     'bar-chart': '📈',
     settings: '⚙️',

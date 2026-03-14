@@ -86,6 +86,7 @@ export const NAV_ITEMS = [
   { id: 'properties', path: '/properties', ar: 'عقارات', en: 'Properties', icon: 'building' },
   { id: 'requests', path: '/requests', ar: 'طلبات', en: 'Requests', icon: 'inbox' },
   { id: 'contacts', path: '/contacts', ar: 'عملاء', en: 'Contacts', icon: 'users' },
+  { id: 'pipeline', path: '/pipeline', ar: 'خط الأنابيب', en: 'Pipeline', icon: 'kanban' },
   { id: 'transactions', path: '/transactions', ar: 'صفقات', en: 'Transactions', icon: 'handshake' },
   { id: 'reports', path: '/reports', ar: 'تقارير', en: 'Reports', icon: 'bar-chart' },
   { id: 'settings', path: '/settings', ar: 'الإعدادات', en: 'Settings', icon: 'settings' },
