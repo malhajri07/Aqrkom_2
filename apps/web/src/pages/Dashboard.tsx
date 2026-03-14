@@ -33,7 +33,7 @@ export function Dashboard() {
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border">
           <p className="text-sm text-slate-500">{t('إعلانات نشطة', 'Active Listings')}</p>
           <p className="text-2xl font-bold mt-1">{kpis.activeListings}</p>
-          <HiOutlineBuildingOffice2 className="w-8 h-8 text-primary-500 mt-1" />
+          <HiOutlineBuildingOffice2 className="w-8 h-8 text-holly-500 mt-1" />
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border">
           <p className="text-sm text-slate-500">{t('طلبات مفتوحة', 'Open Requests')}</p>
@@ -55,16 +55,16 @@ export function Dashboard() {
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold mb-4">{t('بدء سريع', 'Quick Start')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link to="/properties/new" className="flex items-center gap-3 p-4 rounded-lg border hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-            <HiOutlinePlusCircle className="w-6 h-6 text-primary-600 flex-shrink-0" />
+          <Link to="/properties/new" className="flex items-center gap-3 p-4 rounded-lg border hover:border-holly-400 hover:bg-holly-50 dark:hover:bg-holly-900/20 transition-colors">
+            <HiOutlinePlusCircle className="w-6 h-6 text-holly-600 flex-shrink-0" />
             <span>{t('إضافة إعلان عقاري', 'Add Property Listing')}</span>
           </Link>
-          <Link to="/requests/new" className="flex items-center gap-3 p-4 rounded-lg border hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-            <HiOutlineClipboardDocumentList className="w-6 h-6 text-primary-600 flex-shrink-0" />
+          <Link to="/requests/new" className="flex items-center gap-3 p-4 rounded-lg border hover:border-holly-400 hover:bg-holly-50 dark:hover:bg-holly-900/20 transition-colors">
+            <HiOutlineClipboardDocumentList className="w-6 h-6 text-holly-600 flex-shrink-0" />
             <span>{t('طلب عقاري جديد', 'New Property Request')}</span>
           </Link>
-          <Link to="/contacts" className="flex items-center gap-3 p-4 rounded-lg border hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-            <HiOutlineUserGroup className="w-6 h-6 text-primary-600 flex-shrink-0" />
+          <Link to="/contacts" className="flex items-center gap-3 p-4 rounded-lg border hover:border-holly-400 hover:bg-holly-50 dark:hover:bg-holly-900/20 transition-colors">
+            <HiOutlineUserGroup className="w-6 h-6 text-holly-600 flex-shrink-0" />
             <span>{t('إدارة العملاء', 'Manage Contacts')}</span>
           </Link>
         </div>

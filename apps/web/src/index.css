@@ -7,7 +7,7 @@
     @apply font-arabic antialiased;
   }
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100;
+    @apply bg-holly-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100;
   }
 }
 

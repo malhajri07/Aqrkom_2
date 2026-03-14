@@ -27,11 +27,11 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 p-4" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen flex items-center justify-center bg-holly-50 dark:bg-slate-900 p-4" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-primary-600">عقاركم</h1>
+            <h1 className="text-3xl font-bold text-holly-700">عقاركم</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1">
               {t('تسجيل الدخول', 'Sign In')}
             </p>
@@ -73,7 +73,7 @@ export function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50"
+              className="w-full py-3 bg-holly-600 text-white rounded-lg font-medium hover:bg-holly-700 disabled:opacity-50"
             >
               {loading ? t('جاري...', 'Loading...') : t('تسجيل الدخول', 'Sign In')}
             </button>
