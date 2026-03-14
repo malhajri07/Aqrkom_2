@@ -1,0 +1,22 @@
+{
+  "name": "aqarkom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aqarkom - Arabic-first Saudi Real Estate CRM",
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "dev:web": "pnpm --filter @aqarkom/web dev",
+    "dev:api": "pnpm --filter @aqarkom/api dev",
+    "build": "pnpm -r build",
+    "build:web": "pnpm --filter @aqarkom/web build",
+    "build:api": "pnpm --filter @aqarkom/api build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @aqarkom/api db:migrate",
+    "db:generate": "pnpm --filter @aqarkom/api db:generate"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.14.2"
+}

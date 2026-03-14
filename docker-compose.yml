@@ -1,0 +1,32 @@
+# Aqarkom - Local development
+# PRD: Docker, PostgreSQL, GCP Cloud Run
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://aqarkom:aqarkom@db:5432/aqarkom
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aqarkom
+      POSTGRES_PASSWORD: aqarkom
+      POSTGRES_DB: aqarkom
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:
