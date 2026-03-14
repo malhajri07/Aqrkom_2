@@ -14,6 +14,8 @@ import transactionsRoutes from './routes/transactions.js';
 import tasksRoutes from './routes/tasks.js';
 import activitiesRoutes from './routes/activities.js';
 import dashboardRoutes from './routes/dashboard.js';
+import publicRoutes from './routes/public.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,7 +33,10 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// API routes
+// Public routes (no auth required)
+app.use('/api/public', publicRoutes);
+
+// Authenticated API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertiesRoutes);
 app.use('/api/contacts', contactsRoutes);
@@ -40,6 +45,7 @@ app.use('/api/transactions', transactionsRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/activities', activitiesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.listen(PORT, () => {
   console.log(`Aqarkom API running at http://localhost:${PORT}`);

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { properties } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { PROPERTY_TYPES, TRANSACTION_TYPES, PROPERTY_STATUS } from '@aqarkom/shared';
+import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
 
 export function PropertyDetail() {
   const { id } = useParams();
@@ -34,7 +35,7 @@ export function PropertyDetail() {
         {Array.isArray(prop.photos) && prop.photos.length > 0 ? (
           <img src={prop.photos[0] as string} alt="" className="w-full h-64 object-cover" />
         ) : (
-          <div className="w-full h-64 bg-slate-200 flex items-center justify-center text-4xl">🏢</div>
+          <div className="w-full h-64 bg-slate-200 flex items-center justify-center"><HiOutlineBuildingOffice2 className="w-16 h-16 text-slate-400" /></div>
         )}
 
         <div className="p-6 space-y-4">

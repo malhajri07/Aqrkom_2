@@ -109,8 +109,12 @@ export const transactions = {
 };
 
 export const dashboard = {
-  kpis: () => api<{ activeListings: number; openRequests: number; pipelineValue: number; commissionEarned: number }>('/dashboard/kpis'),
-  pipelineStages: () => api<{ id: string; name_ar: string; name_en: string; stage_order: number }[]>('/dashboard/pipeline-stages'),
+  kpis: () => api<unknown>('/dashboard/kpis'),
+  pipelineStages: () => api<unknown[]>('/dashboard/pipeline-stages'),
+  pipelineSummary: () => api<unknown[]>('/dashboard/pipeline-summary'),
+  recentActivities: () => api<unknown[]>('/dashboard/recent-activities'),
+  recentProperties: () => api<unknown[]>('/dashboard/recent-properties'),
+  reportsSummary: () => api<unknown>('/dashboard/reports-summary'),
 };
 
 export const activities = {
