@@ -56,6 +56,8 @@ Remediation plan execution per `docs/ULTRA_EVALUATION_AND_PLAN.md`. Phase 0, Pha
 
 **Done (Sprint E):** Terraform modules: networking, cloud-sql, memorystore, secrets, cloud-storage, cloud-run (API + Worker). Cloud Build: migrate step, web build + deploy to GCS. VITE_API_URL support for production API base.
 
+**Done (Hijri dates):** HijriDatePicker wired in RequestSubmit (move-in date). formatDualDate used for Dashboard task due_date, TransactionDetail payment_date.
+
 ## Active Decisions
 
 - Keep raw `pg` for now; Drizzle migration deferred

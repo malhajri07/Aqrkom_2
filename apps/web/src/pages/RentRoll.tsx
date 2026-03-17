@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { transactions } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
+import { formatDualDate } from '../components/common/HijriDatePicker';
 import { HiOutlineHomeModern, HiOutlineExclamationTriangle } from 'react-icons/hi2';
 
 export function RentRoll() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [list, setList] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,12 +51,12 @@ export function RentRoll() {
                     <td className="py-3 px-4">{String(tx.property_title)}</td>
                     <td className="py-3 px-4">{String(tx.client_first_name)} {String(tx.client_last_name)}</td>
                     <td className="py-3 px-4">{Number(tx.lease_monthly_rent || 0).toLocaleString('ar-SA')} ر.س</td>
-                    <td className="py-3 px-4">{tx.lease_start ? String(tx.lease_start) : '-'}</td>
+                    <td className="py-3 px-4">{tx.lease_start ? formatDualDate(String(tx.lease_start), language) : '-'}</td>
                     <td className="py-3 px-4">
                       {tx.lease_end ? (
                         <span className={isExpiringSoon ? 'text-amber-600 flex items-center gap-1' : ''}>
                           {isExpiringSoon && <HiOutlineExclamationTriangle className="w-4 h-4" />}
-                          {String(tx.lease_end)}
+                          {formatDualDate(String(tx.lease_end), language)}
                         </span>
                       ) : '-'}
                     </td>

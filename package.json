@@ -8,6 +8,7 @@
     "dev:web": "pnpm --filter @aqarkom/web dev",
     "dev:api": "pnpm --filter @aqarkom/api dev",
     "build": "pnpm -r build",
+    "typecheck": "pnpm build",
     "build:web": "pnpm --filter @aqarkom/web build",
     "build:api": "pnpm --filter @aqarkom/api build",
     "lint": "pnpm -r lint",

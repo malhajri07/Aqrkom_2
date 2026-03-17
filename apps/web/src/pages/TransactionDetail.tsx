@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { API_BASE, transactions, unwrapEnvelope } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
+import { formatDualDate } from '../components/common/HijriDatePicker';
 import { HiOutlineArrowRight, HiOutlineCheckCircle, HiOutlineXCircle } from 'react-icons/hi2';
 
 const CLOSING_CHECKLIST = [
@@ -15,7 +16,7 @@ const CLOSING_CHECKLIST = [
 
 export function TransactionDetail() {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [tx, setTx] = useState<Record<string, unknown> | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'checklist' | 'rent'>('overview');
   const [rentPayments, setRentPayments] = useState<Record<string, unknown>[]>([]);
@@ -127,7 +128,7 @@ export function TransactionDetail() {
                 <tbody>
                   {rentPayments.map((p) => (
                     <tr key={String(p.id)} className="border-b">
-                      <td className="py-2">{String(p.payment_date)}</td>
+                      <td className="py-2">{p.payment_date ? formatDualDate(String(p.payment_date), language) : '—'}</td>
                       <td className="py-2">{Number(p.amount).toLocaleString('ar-SA')} ر.س</td>
                       <td className="py-2">{String(p.status)}</td>
                     </tr>

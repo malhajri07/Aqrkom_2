@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { requests } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { PROPERTY_TYPES, SAUDI_CITIES } from '@aqarkom/shared';
+import { HijriDatePicker } from '../components/common/HijriDatePicker';
 
 export function RequestSubmit() {
   const navigate = useNavigate();
@@ -145,12 +146,10 @@ export function RequestSubmit() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">{t('تاريخ الانتقال', 'Move-in Date')}</label>
-          <input
-            type="date"
-            value={form.move_in_date}
-            onChange={(e) => setForm({ ...form, move_in_date: e.target.value })}
-            className="w-full px-4 py-2 rounded-lg border"
+          <HijriDatePicker
+            label={t('تاريخ الانتقال', 'Move-in Date')}
+            value={form.move_in_date || null}
+            onChange={(d) => setForm({ ...form, move_in_date: d.toISOString().slice(0, 10) })}
           />
         </div>
 

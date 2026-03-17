@@ -7,6 +7,12 @@
 export const PROPERTY_TYPES = {
   apartment: { ar: 'شقة', en: 'Apartment' },
   villa: { ar: 'فيلا', en: 'Villa' },
+  duplex: { ar: 'دوبلكس', en: 'Duplex' },
+  townhouse: { ar: 'تاون هاوس', en: 'Townhouse' },
+  penthouse: { ar: 'بنتهاوس', en: 'Penthouse' },
+  compound: { ar: 'مجمع سكني', en: 'Compound' },
+  tower: { ar: 'برج', en: 'Tower' },
+  house: { ar: 'منزل', en: 'House' },
   land: { ar: 'أرض', en: 'Land' },
   building: { ar: 'عمارة', en: 'Building' },
   floor: { ar: 'دور', en: 'Floor' },

@@ -66,7 +66,7 @@ function ContactCard({
         )}
       </div>
       {typeLabel && (
-        <p className="text-xs text-slate-500 mb-2">{tLang(typeLabel.ar, typeLabel.en)}</p>
+        <p className="text-xs text-slate-500 mb-2">{t(typeLabel.ar, typeLabel.en)}</p>
       )}
       <div className="flex items-center gap-2">
         <a
@@ -138,7 +138,7 @@ function DroppableStage({
               key={c.id}
               c={c}
               typeLabel={CONTACT_TYPES[c.contact_type as keyof typeof CONTACT_TYPES] as { ar: string; en: string } | undefined}
-              t={t}
+              t={tLang}
               stageId={stage.id}
             />
           ))}

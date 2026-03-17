@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatDualDate } from '../components/common/HijriDatePicker';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDashboardData } from '../features/dashboard/api';
 import { useLanguage } from '../context/LanguageContext';
@@ -97,7 +98,7 @@ const STATUS_LABELS: Record<string, { ar: string; en: string }> = {
 
 export function Dashboard() {
   const { t } = useTranslation('dashboard');
-  const { t: tLang } = useLanguage();
+  const { t: tLang, language } = useLanguage();
   const { kpis: kpisData, pipeline, recentActivities, recentProperties, taskList, isLoading } = useDashboardData();
 
   const kpis: KPIs = (kpisData as KPIs) ?? { activeListings: 0, openRequests: 0, pipelineValue: 0, commissionEarned: 0, totalContacts: 0, pendingTasks: 0 };
@@ -240,7 +241,7 @@ export function Dashboard() {
                       {task.due_date && (
                         <span className="text-xs text-slate-400 flex items-center gap-1">
                           <HiOutlineClock className="w-3 h-3" />
-                          {new Date(task.due_date).toLocaleDateString()}
+                          {formatDualDate(task.due_date, language)}
                         </span>
                       )}
                     </div>
