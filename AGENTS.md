@@ -17,10 +17,11 @@ Aqarkom is an Arabic-first Saudi Real Estate CRM (pnpm monorepo). Three workspac
 1. **PostgreSQL** must be running before the API starts. Default connection: `postgresql://aqarkom:aqarkom@localhost:5432/aqarkom`.
 2. **Start PostgreSQL:** `sudo pg_ctlcluster 16 main start`
 3. **Build shared package first** (required before API/web): `pnpm --filter @aqarkom/shared build`
-4. **Run migrations:** `PGPASSWORD=aqarkom psql -U aqarkom -d aqarkom -h localhost -f db/migrations/001_initial_schema.sql && PGPASSWORD=aqarkom psql -U aqarkom -d aqarkom -h localhost -f db/migrations/002_activities_tasks_documents.sql`
+4. **Run migrations:** `PGPASSWORD=aqarkom psql -U aqarkom -d aqarkom -h localhost -f db/migrations/001_initial_schema.sql && PGPASSWORD=aqarkom psql -U aqarkom -d aqarkom -h localhost -f db/migrations/002_activities_tasks_documents.sql` (and 003, 004, 005)
 5. **Start API:** `DATABASE_URL="postgresql://aqarkom:aqarkom@localhost:5432/aqarkom" pnpm dev:api`
 6. **Start Web:** `pnpm dev:web`
 7. **Start both (parallel):** `pnpm dev` (but API needs `DATABASE_URL` in env)
+8. **Docker (full stack):** `docker compose up` — API, PostgreSQL (PostGIS), Redis. Use `REDIS_URL=redis://redis:6379` when running API in Docker.
 
 ### Non-obvious caveats
 

@@ -1,0 +1,21 @@
+{
+  "title": "Requests",
+  "listTitle": "Property Requests",
+  "subtitle": "Request inbox - DealApp style",
+  "submitRequest": "Submit Property Request",
+  "newRequest": "New Property Request",
+  "requestType": "Request Type",
+  "propertyType": "Property Type",
+  "city": "City",
+  "districts": "Preferred Neighborhoods",
+  "budget": "Budget",
+  "bedrooms": "Bedrooms",
+  "area": "Area",
+  "moveInDate": "Expected Move-in Date",
+  "additionalReqs": "Additional Requirements",
+  "noRequests": "No requests",
+  "status": "Status",
+  "offers": "Offers",
+  "view": "View",
+  "loading": "Loading..."
+}

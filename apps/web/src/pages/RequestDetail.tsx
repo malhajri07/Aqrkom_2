@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { requests, properties } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { HiOutlineArrowRight } from 'react-icons/hi2';
+import { HiOutlineArrowRight, HiOutlineCheck, HiOutlineXMark } from 'react-icons/hi2';
 
 export function RequestDetail() {
   const { id } = useParams();
@@ -14,10 +14,15 @@ export function RequestDetail() {
   const [selectedProperty, setSelectedProperty] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [responding, setResponding] = useState<string | null>(null);
+
+  const refresh = () => {
+    if (id) requests.get(id).then((r: unknown) => setReq(r as Record<string, unknown> & { offers?: unknown[] })).catch(() => setReq(null));
+  };
 
   useEffect(() => {
     if (id) {
-      requests.get(id).then((r: unknown) => setReq(r as Record<string, unknown> & { offers?: unknown[] })).catch(() => setReq(null));
+      refresh();
       if (user?.role && ['broker', 'agent', 'admin'].includes(user.role)) {
         properties.list({ status: 'active' }).then((r) => setMyProperties(r as unknown[]));
       }
@@ -29,10 +34,9 @@ export function RequestDetail() {
     setSending(true);
     try {
       await requests.addOffer(id, selectedProperty, message);
-      setReq(null);
-      requests.get(id).then(setReq);
       setSelectedProperty('');
       setMessage('');
+      refresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed');
     } finally {
@@ -40,9 +44,24 @@ export function RequestDetail() {
     }
   };
 
+  const respondToOffer = async (offerId: string, action: 'accept' | 'reject') => {
+    if (!id) return;
+    setResponding(offerId);
+    try {
+      await requests.respondToOffer(id, offerId, action);
+      refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed');
+    } finally {
+      setResponding(null);
+    }
+  };
+
   if (!req) return <div className="p-8">{t('جاري التحميل...', 'Loading...')}</div>;
 
   const isBroker = user?.role && ['broker', 'agent', 'admin'].includes(user.role);
+  const isSeeker = req.seeker_id === user?.id;
+  const offers = (req.offers || []) as Record<string, unknown>[];
 
   return (
     <div className="max-w-4xl">
@@ -81,24 +100,78 @@ export function RequestDetail() {
           </div>
         )}
 
-        {Array.isArray(req.offers) && req.offers.length > 0 && (
+        {offers.length > 0 && (
           <div className="mt-6">
             <h3 className="font-semibold mb-4">{t('العروض المستلمة', 'Received Offers')}</h3>
-            <div className="space-y-4">
-              {(req.offers as Record<string, unknown>[]).map((offer) => (
-                <Link
-                  key={String(offer.id)}
-                  to={`/properties/${offer.property_id}`}
-                  className="block p-4 border rounded-lg hover:border-primary-500"
-                >
-                  <div className="flex justify-between">
-                    <span className="font-medium">{String(offer.title_ar)}</span>
-                    <span className="text-primary-600">{Number(offer.price).toLocaleString()} ر.س</span>
-                  </div>
-                  <p className="text-sm text-slate-500">{String(offer.district)}, {String(offer.city)}</p>
-                </Link>
-              ))}
-            </div>
+            {isSeeker ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-right py-2 px-3">{t('العقار', 'Property')}</th>
+                      <th className="text-right py-2 px-3">{t('السعر', 'Price')}</th>
+                      <th className="text-right py-2 px-3">{t('الموقع', 'Location')}</th>
+                      <th className="text-right py-2 px-3">{t('الوسيط', 'Broker')}</th>
+                      <th className="text-right py-2 px-3">{t('الإجراء', 'Action')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {offers.map((offer) => (
+                      <tr key={String(offer.id)} className="border-b">
+                        <td className="py-3 px-3">
+                          <Link to={`/properties/${offer.property_id}`} className="text-primary-600 hover:underline font-medium">
+                            {String(offer.title_ar)}
+                          </Link>
+                        </td>
+                        <td className="py-3 px-3 font-medium">{Number(offer.price).toLocaleString('ar-SA')} ر.س</td>
+                        <td className="py-3 px-3 text-slate-600">{String(offer.district)}, {String(offer.city)}</td>
+                        <td className="py-3 px-3">{String(offer.broker_first_name)} {String(offer.broker_last_name)}</td>
+                        <td className="py-3 px-3">
+                          {(offer.status as string) === 'sent' ? (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => respondToOffer(String(offer.id), 'accept')}
+                                disabled={!!responding}
+                                className="p-1.5 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                                title={t('قبول', 'Accept')}
+                              >
+                                <HiOutlineCheck className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => respondToOffer(String(offer.id), 'reject')}
+                                disabled={!!responding}
+                                className="p-1.5 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                                title={t('رفض', 'Reject')}
+                              >
+                                <HiOutlineXMark className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500">{String(offer.status)}</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {offers.map((offer) => (
+                  <Link
+                    key={String(offer.id)}
+                    to={`/properties/${offer.property_id}`}
+                    className="block p-4 border rounded-lg hover:border-primary-500"
+                  >
+                    <div className="flex justify-between">
+                      <span className="font-medium">{String(offer.title_ar)}</span>
+                      <span className="text-primary-600">{Number(offer.price).toLocaleString()} ر.س</span>
+                    </div>
+                    <p className="text-sm text-slate-500">{String(offer.district)}, {String(offer.city)}</p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

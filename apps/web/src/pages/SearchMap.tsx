@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { APIProvider, Map, AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-google-maps';
 import { useLanguage } from '../context/LanguageContext';
+import { unwrapEnvelope } from '../lib/api';
 import {
   HiOutlineMagnifyingGlass,
   HiOutlineAdjustmentsHorizontal,
@@ -9,19 +11,28 @@ import {
   HiOutlineHomeModern,
   HiOutlineSquare3Stack3D,
   HiOutlineXMark,
+  HiOutlineMap,
+  HiOutlineSquares2X2,
 } from 'react-icons/hi2';
+
+const SAUDI_CENTER = { lat: 24.7136, lng: 46.6753 };
 
 interface Property {
   id: string;
-  title: string;
+  title_ar?: string;
+  title_en?: string;
   price: number;
   city: string;
   district: string;
   property_type: string;
   transaction_type: string;
   bedrooms: number;
-  area: number;
+  area_sqm?: number;
+  area?: number;
   status: string;
+  latitude?: number;
+  longitude?: number;
+  photos?: string[];
 }
 
 const PROPERTY_TYPES = [
@@ -41,11 +52,49 @@ const TRANSACTION_TYPES = [
   { value: 'rent', ar: 'إيجار', en: 'Rent' },
 ];
 
+function PropertyMarker({
+  property,
+  formatPrice,
+  t,
+}: {
+  property: Property;
+  formatPrice: (p: number) => string;
+  t: (ar: string, en: string) => string;
+}) {
+  const [markerRef, marker] = useAdvancedMarkerRef();
+  const [infoOpen, setInfoOpen] = useState(false);
+  const handleMarkerClick = useCallback(() => setInfoOpen((o) => !o), []);
+  const handleClose = useCallback(() => setInfoOpen(false), []);
+
+  return (
+    <>
+      <AdvancedMarker
+        ref={markerRef}
+        position={{ lat: property.latitude!, lng: property.longitude! }}
+        onClick={handleMarkerClick}
+      />
+      {infoOpen && marker && (
+        <InfoWindow anchor={marker} onClose={handleClose}>
+          <div className="min-w-[200px] p-1">
+            <h3 className="font-semibold text-sm mb-1">{property.title_ar || property.title_en}</h3>
+            <p className="text-holly-600 font-bold">{formatPrice(property.price)}</p>
+            <p className="text-xs text-slate-500">{property.district}, {property.city}</p>
+            <Link to={`/login?redirect=/properties/${property.id}`} className="text-xs text-holly-600 hover:underline mt-2 block">
+              {t('تسجيل الدخول لعرض التفاصيل', 'Login to view details')}
+            </Link>
+          </div>
+        </InfoWindow>
+      )}
+    </>
+  );
+}
+
 export function SearchMap() {
   const { t, isRtl } = useLanguage();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     property_type: '',
@@ -62,9 +111,10 @@ export function SearchMap() {
   const fetchProperties = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/properties/public');
+      const res = await fetch('/api/v1/public/properties');
       if (res.ok) {
-        const data = await res.json();
+        const body = await res.json();
+        const data = unwrapEnvelope<Property[]>(body);
         setProperties(Array.isArray(data) ? data : []);
       }
     } catch {
@@ -74,14 +124,11 @@ export function SearchMap() {
     }
   };
 
-  const filteredProperties = properties.filter((p) => {
+  const filteredProperties = useMemo(() => properties.filter((p) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      if (
-        !p.title?.toLowerCase().includes(q) &&
-        !p.city?.toLowerCase().includes(q) &&
-        !p.district?.toLowerCase().includes(q)
-      ) {
+      const title = (p.title_ar || p.title_en || '').toLowerCase();
+      if (!title.includes(q) && !p.city?.toLowerCase().includes(q) && !p.district?.toLowerCase().includes(q)) {
         return false;
       }
     }
@@ -89,9 +136,11 @@ export function SearchMap() {
     if (filters.transaction_type && p.transaction_type !== filters.transaction_type) return false;
     if (filters.min_price && p.price < Number(filters.min_price)) return false;
     if (filters.max_price && p.price > Number(filters.max_price)) return false;
-    if (filters.bedrooms && p.bedrooms < Number(filters.bedrooms)) return false;
+    if (filters.bedrooms && (p.bedrooms || 0) < Number(filters.bedrooms)) return false;
     return true;
-  });
+  }), [properties, searchQuery, filters]);
+
+  const propertiesWithCoords = filteredProperties.filter((p) => p.latitude != null && p.longitude != null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR', maximumFractionDigits: 0 }).format(price);
@@ -186,9 +235,27 @@ export function SearchMap() {
               ({filteredProperties.length})
             </span>
           </h2>
-          <Link to="/" className="text-sm text-holly-600 hover:text-holly-700 font-medium">
-            {t('الرئيسية', 'Home')}
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-holly-100 text-holly-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              title={t('عرض شبكي', 'Grid view')}
+            >
+              <HiOutlineSquares2X2 className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('map')}
+              className={`p-2 rounded-lg ${viewMode === 'map' ? 'bg-holly-100 text-holly-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              title={t('عرض الخريطة', 'Map view')}
+            >
+              <HiOutlineMap className="w-5 h-5" />
+            </button>
+            <Link to="/" className="text-sm text-holly-600 hover:text-holly-700 font-medium ms-2">
+              {t('الرئيسية', 'Home')}
+            </Link>
+          </div>
         </div>
 
         {loading ? (
@@ -200,6 +267,56 @@ export function SearchMap() {
             <HiOutlineBuildingOffice2 className="w-12 h-12 mx-auto mb-3 text-slate-300" />
             <p className="text-lg font-medium">{t('لا توجد عقارات', 'No properties found')}</p>
             <p className="text-sm mt-1">{t('جرب تغيير معايير البحث', 'Try adjusting your search criteria')}</p>
+          </div>
+        ) : viewMode === 'map' ? (
+          <div className="h-[600px] rounded-xl overflow-hidden border border-slate-200">
+            {(() => {
+              const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+              if (!apiKey || apiKey === 'your-google-maps-api-key') {
+                return (
+                  <div className="h-full flex flex-col items-center justify-center bg-slate-100 text-slate-600 p-6">
+                    <HiOutlineMap className="w-16 h-16 mb-4 text-slate-400" />
+                    <p className="text-lg font-medium mb-2">
+                      {t('إعداد خرائط جوجل', 'Google Maps Setup')}
+                    </p>
+                    <p className="text-sm text-center max-w-md mb-4">
+                      {t(
+                        'أضف مفتاح Google Maps API إلى ملف .env كـ VITE_GOOGLE_MAPS_API_KEY لتفعيل الخريطة.',
+                        'Add your Google Maps API key to .env as VITE_GOOGLE_MAPS_API_KEY to enable the map.'
+                      )}
+                    </p>
+                    <a
+                      href="https://developers.google.com/maps/documentation/javascript/get-api-key"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-holly-600 hover:underline text-sm"
+                    >
+                      {t('الحصول على مفتاح API', 'Get API Key')}
+                    </a>
+                  </div>
+                );
+              }
+              return (
+                <APIProvider apiKey={apiKey}>
+                  <Map
+                    defaultCenter={SAUDI_CENTER}
+                    defaultZoom={5}
+                    gestureHandling="greedy"
+                    style={{ width: '100%', height: '100%' }}
+                    mapId="DEMO_MAP_ID"
+                  >
+                    {propertiesWithCoords.map((property) => (
+                      <PropertyMarker
+                        key={property.id}
+                        property={property}
+                        formatPrice={formatPrice}
+                        t={t}
+                      />
+                    ))}
+                  </Map>
+                </APIProvider>
+              );
+            })()}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -213,7 +330,7 @@ export function SearchMap() {
                 </div>
                 <div className="p-4">
                   <h3 className="text-base font-bold text-slate-900 mb-1 line-clamp-1">
-                    {property.title}
+                    {property.title_ar || property.title_en}
                   </h3>
                   <p className="text-lg font-bold text-holly-600 mb-2">
                     {formatPrice(property.price)}
@@ -229,15 +346,15 @@ export function SearchMap() {
                     <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
                       {property.transaction_type === 'sale' ? t('بيع', 'Sale') : t('إيجار', 'Rent')}
                     </span>
-                    {property.bedrooms > 0 && (
+                    {(property.bedrooms || 0) > 0 && (
                       <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
                         {property.bedrooms} {t('غرف', 'BR')}
                       </span>
                     )}
-                    {property.area > 0 && (
+                    {((property.area_sqm ?? property.area) || 0) > 0 && (
                       <span className="flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
                         <HiOutlineSquare3Stack3D className="w-3 h-3" />
-                        {property.area} {t('م²', 'sqm')}
+                        {property.area_sqm ?? property.area} {t('م²', 'sqm')}
                       </span>
                     )}
                   </div>

@@ -1,0 +1,13 @@
+{
+  "contacts": "العملاء",
+  "leadPipeline": "خط أنابيب العملاء",
+  "manageStages": "إدارة مراحل العملاء",
+  "leads": "عميل",
+  "unassigned": "غير مصنف",
+  "noLeads": "لا يوجد عملاء",
+  "addContact": "إضافة عميل",
+  "firstName": "الاسم الأول",
+  "lastName": "اسم العائلة",
+  "phone": "الهاتف",
+  "email": "البريد الإلكتروني"
+}

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { PhoneInput } from '../components/common/PhoneInput';
+import { PriceInput } from '../components/common/PriceInput';
 import {
   HiOutlineClipboardDocumentList,
   HiOutlineCheckCircle,
@@ -28,7 +30,7 @@ const PROPERTY_TYPES = [
 ];
 
 export function PublicRequest() {
-  const { t, isRtl } = useLanguage();
+  const { t, isRtl, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState('');
@@ -57,19 +59,21 @@ export function PublicRequest() {
     setError('');
 
     try {
-      const res = await fetch('/api/requests/public', {
+      const res = await fetch('/api/v1/public/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || t('حدث خطأ أثناء إرسال الطلب', 'Request submission failed'));
+        const body = await res.json().catch(() => ({}));
+        const msg = body?.error?.message || body?.error || t('حدث خطأ أثناء إرسال الطلب', 'Request submission failed');
+        throw new Error(msg);
       }
 
-      const data = await res.json();
-      setReferenceNumber(data.reference_number || data.id || 'REQ-' + Date.now());
+      const body = await res.json();
+      const data = body?.data ?? body;
+      setReferenceNumber(data?.reference || data?.reference_number || data?.id || 'REQ-' + Date.now());
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('حدث خطأ', 'An error occurred'));
@@ -158,14 +162,11 @@ export function PublicRequest() {
                   <HiOutlinePhone className="w-4 h-4 inline me-1" />
                   {t('رقم الجوال', 'Phone')}
                 </label>
-                <input
-                  type="tel"
-                  name="phone"
+                <PhoneInput
                   required
                   value={form.phone}
-                  onChange={handleChange}
+                  onChange={(v) => setForm({ ...form, phone: v })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
-                  dir="ltr"
                 />
               </div>
             </div>
@@ -239,11 +240,10 @@ export function PublicRequest() {
                   <HiOutlineCurrencyDollar className="w-4 h-4 inline me-1" />
                   {t('أقل ميزانية', 'Min Budget')}
                 </label>
-                <input
-                  type="number"
-                  name="min_budget"
-                  value={form.min_budget}
-                  onChange={handleChange}
+                <PriceInput
+                  value={form.min_budget ? Number(form.min_budget) : undefined}
+                  onChange={(v) => setForm({ ...form, min_budget: v != null ? String(v) : '' })}
+                  locale={language}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
                 />
               </div>
@@ -251,11 +251,10 @@ export function PublicRequest() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   {t('أعلى ميزانية', 'Max Budget')}
                 </label>
-                <input
-                  type="number"
-                  name="max_budget"
-                  value={form.max_budget}
-                  onChange={handleChange}
+                <PriceInput
+                  value={form.max_budget ? Number(form.max_budget) : undefined}
+                  onChange={(v) => setForm({ ...form, max_budget: v != null ? String(v) : '' })}
+                  locale={language}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
                 />
               </div>

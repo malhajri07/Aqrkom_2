@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { contacts } from '../lib/api';
+import { useContactsList, useContactCreate, useContactImport } from '../features/contacts/api';
 import { useLanguage } from '../context/LanguageContext';
-import { CONTACT_TYPES } from '@aqarkom/shared';
+import { CONTACT_TYPES, LEAD_SOURCES } from '@aqarkom/shared';
 import {
   HiOutlineUsers,
   HiOutlinePlusCircle,
@@ -10,38 +11,70 @@ import {
   HiOutlinePhone,
   HiOutlineEnvelope,
   HiOutlineFunnel,
+  HiOutlineArrowDownTray,
+  HiOutlineArrowUpTray,
 } from 'react-icons/hi2';
 import { FaWhatsapp } from 'react-icons/fa';
+import { PhoneInput } from '../components/common/PhoneInput';
 
 export function Contacts() {
   const { t } = useLanguage();
-  const [list, setList] = useState<Record<string, unknown>[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('');
   const [form, setForm] = useState({ contact_type: 'buyer', first_name_ar: '', last_name_ar: '', phone: '', email: '', lead_source: 'website' });
 
-  const loadContacts = () => {
-    setLoading(true);
-    contacts.list().then((r) => setList(r as Record<string, unknown>[])).catch(() => setList([])).finally(() => setLoading(false));
-  };
+  const queryFilters = useMemo(() => {
+    const params: Record<string, string> = {};
+    if (typeFilter) params.contact_type = typeFilter;
+    if (sourceFilter) params.lead_source = sourceFilter;
+    return params;
+  }, [typeFilter, sourceFilter]);
 
-  useEffect(() => { loadContacts(); }, []);
+  const { data: list = [], isLoading: loading } = useContactsList(queryFilters);
+  const createMutation = useContactCreate();
+  const importMutation = useContactImport();
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      const headers = lines[0]?.split(',').map((h) => h.trim().replace(/^"|"$/g, '')) || [];
+      const rows = lines.slice(1).map((line) => {
+        const values = line.match(/(".*?"|[^,]+)/g)?.map((v) => v.replace(/^"|"$/g, '').trim()) || [];
+        return headers.reduce((acc, h, i) => ({ ...acc, [h]: values[i] || '' }), {} as Record<string, string>);
+      });
+      await importMutation.mutateAsync({
+        rows,
+        fieldMapping: {
+          first_name_ar: headers.find((h) => /first|اسم|name/i.test(h)) || 'first_name_ar',
+          last_name_ar: headers.find((h) => /last|عائلة|family/i.test(h)) || 'last_name_ar',
+          phone: headers.find((h) => /phone|هاتف|mobile/i.test(h)) || 'phone',
+          email: headers.find((h) => /email|بريد/i.test(h)) || 'email',
+        },
+      });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Import failed');
+    } finally {
+      e.target.value = '';
+    }
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await contacts.create(form);
+      await createMutation.mutateAsync(form);
       setShowForm(false);
       setForm({ contact_type: 'buyer', first_name_ar: '', last_name_ar: '', phone: '', email: '', lead_source: 'website' });
-      loadContacts();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed');
     }
   };
 
-  const filteredList = list.filter((c) => {
+  const filteredList = (list as Record<string, unknown>[]).filter((c) => {
     const matchesSearch = !searchQuery || String(c.first_name_ar || '').includes(searchQuery) || String(c.last_name_ar || '').includes(searchQuery) || String(c.phone || '').includes(searchQuery);
     const matchesType = !typeFilter || c.contact_type === typeFilter;
     return matchesSearch && matchesType;
@@ -53,7 +86,7 @@ export function Contacts() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="contacts-page">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">{t('العملاء', 'Contacts')}</h1>
@@ -84,17 +117,23 @@ export function Contacts() {
               <input required value={form.last_name_ar} onChange={(e) => setForm({ ...form, last_name_ar: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-600 mb-1">{t('الهاتف', 'Phone')}</label>
-              <input required type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+966..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <PhoneInput required value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-600 mb-1">{t('البريد', 'Email')}</label>
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-1">{t('مصدر العميل', 'Lead Source')}</label>
+              <select value={form.lead_source} onChange={(e) => setForm({ ...form, lead_source: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm">
+                {Object.entries(LEAD_SOURCES).map(([k, v]) => (<option key={k} value={k}>{t(v.ar, v.en)}</option>))}
+              </select>
+            </div>
           </div>
-          <button type="submit" className="px-4 py-2 bg-holly-600 text-white rounded-lg text-sm font-medium hover:bg-holly-700">{t('حفظ', 'Save')}</button>
+          <button type="submit" disabled={createMutation.isPending} className="px-4 py-2 bg-holly-600 text-white rounded-lg text-sm font-medium hover:bg-holly-700 disabled:opacity-50">{t('حفظ', 'Save')}</button>
         </form>
       )}
 
@@ -109,6 +148,24 @@ export function Contacts() {
             <option value="">{t('كل الأنواع', 'All Types')}</option>
             {Object.entries(CONTACT_TYPES).map(([k, v]) => (<option key={k} value={k}>{t(v.ar, v.en)}</option>))}
           </select>
+          <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-slate-200 text-sm">
+            <option value="">{t('كل المصادر', 'All Sources')}</option>
+            {Object.entries(LEAD_SOURCES).map(([k, v]) => (<option key={k} value={k}>{t(v.ar, v.en)}</option>))}
+          </select>
+          <button type="button" onClick={async () => { try { await contacts.export(); } catch { alert('Export failed'); } }} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-sm hover:bg-slate-50">
+            <HiOutlineArrowDownTray className="w-4 h-4" />
+            {t('تصدير', 'Export')}
+          </button>
+          <label className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-sm hover:bg-slate-50 cursor-pointer">
+            <input type="file" accept=".csv" className="hidden" onChange={handleImport} disabled={importMutation.isPending} />
+            <HiOutlineArrowUpTray className="w-4 h-4" />
+            {importMutation.isPending ? t('جاري...', 'Importing...') : t('استيراد', 'Import')}
+          </label>
+          {importMutation.data && (
+            <span className="text-sm text-slate-600">
+              {t('تم استيراد', 'Imported')} {importMutation.data.imported}, {t('تم تخطي', 'Skipped')} {importMutation.data.skipped}
+            </span>
+          )}
         </div>
       </div>
 

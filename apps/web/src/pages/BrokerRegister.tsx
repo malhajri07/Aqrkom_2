@@ -1,6 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useLanguage } from '../context/LanguageContext';
+import { registerSchema, type RegisterInput } from '@aqarkom/shared';
+import { Button } from '../components/ui/button';
+import { PhoneInput } from '../components/common/PhoneInput';
 import {
   HiOutlineShieldCheck,
   HiOutlineEnvelope,
@@ -14,48 +19,42 @@ import {
 
 export function BrokerRegister() {
   const { t, isRtl } = useLanguage();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    email: '',
-    phone: '',
-    password: '',
-    first_name_ar: '',
-    last_name_ar: '',
-    rega_license_number: '',
-    role: 'broker',
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: '',
+      phone: '',
+      password: '',
+      first_name_ar: '',
+      last_name_ar: '',
+      role: 'broker',
+      rega_license_number: '',
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
-  };
+  const onSubmit = async (data: RegisterInput) => {
+    const res = await fetch('/api/v1/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...data, role: data.role || 'broker' }),
+    });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || t('حدث خطأ أثناء التسجيل', 'Registration failed'));
-      }
-
-      setSuccess(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('حدث خطأ', 'An error occurred'));
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      const msg = body?.error?.message || body?.error || t('حدث خطأ أثناء التسجيل', 'Registration failed');
+      setError('root', { message: msg });
+      return;
     }
+
+    setSuccess(true);
   };
 
   if (success) {
@@ -101,117 +100,125 @@ export function BrokerRegister() {
           </p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {errors.root && (
+            <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {errors.root.message}
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="first_name_ar" className="block text-sm font-medium text-slate-700 mb-1">
                 <HiOutlineUser className="w-4 h-4 inline me-1" />
                 {t('الاسم الأول', 'First Name')}
               </label>
               <input
+                id="first_name_ar"
                 type="text"
-                name="first_name_ar"
-                required
-                value={form.first_name_ar}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
+                {...register('first_name_ar')}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500 aria-invalid:border-red-500"
                 placeholder={t('محمد', 'Mohammed')}
               />
+              {errors.first_name_ar && (
+                <p className="mt-1 text-sm text-red-600" role="alert">{errors.first_name_ar.message}</p>
+              )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="last_name_ar" className="block text-sm font-medium text-slate-700 mb-1">
                 <HiOutlineUser className="w-4 h-4 inline me-1" />
                 {t('اسم العائلة', 'Last Name')}
               </label>
               <input
+                id="last_name_ar"
                 type="text"
-                name="last_name_ar"
-                required
-                value={form.last_name_ar}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
+                {...register('last_name_ar')}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500 aria-invalid:border-red-500"
                 placeholder={t('العقاري', 'Al-Aqari')}
               />
+              {errors.last_name_ar && (
+                <p className="mt-1 text-sm text-red-600" role="alert">{errors.last_name_ar.message}</p>
+              )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
               <HiOutlineEnvelope className="w-4 h-4 inline me-1" />
               {t('البريد الإلكتروني', 'Email')}
             </label>
             <input
+              id="email"
               type="email"
-              name="email"
-              required
-              value={form.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
+              {...register('email')}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500 aria-invalid:border-red-500"
               placeholder="broker@example.com"
             />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600" role="alert">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
               <HiOutlinePhone className="w-4 h-4 inline me-1" />
               {t('رقم الجوال', 'Phone')}
             </label>
-            <input
-              type="tel"
+            <Controller
               name="phone"
-              required
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
-              placeholder="+966 5x xxx xxxx"
-              dir="ltr"
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  id="phone"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500 aria-invalid:border-red-500"
+                />
+              )}
             />
+            {errors.phone && (
+              <p className="mt-1 text-sm text-red-600" role="alert">{errors.phone.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
               <HiOutlineLockClosed className="w-4 h-4 inline me-1" />
               {t('كلمة المرور', 'Password')}
             </label>
             <input
+              id="password"
               type="password"
-              name="password"
-              required
-              value={form.password}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
+              {...register('password')}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500 aria-invalid:border-red-500"
               placeholder="••••••••"
             />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600" role="alert">{errors.password.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="rega_license_number" className="block text-sm font-medium text-slate-700 mb-1">
               <HiOutlineIdentification className="w-4 h-4 inline me-1" />
               {t('رقم رخصة هيئة العقار (REGA)', 'REGA License Number')}
             </label>
             <input
+              id="rega_license_number"
               type="text"
-              name="rega_license_number"
-              value={form.rega_license_number}
-              onChange={handleChange}
+              {...register('rega_license_number')}
               className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
               placeholder={t('اختياري', 'Optional')}
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-holly-600 text-white font-semibold rounded-lg hover:bg-holly-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting}
+            className="w-full py-3"
           >
-            {loading ? t('جاري التسجيل...', 'Registering...') : t('سجل كوسيط', 'Register as Broker')}
-          </button>
+            {isSubmitting ? t('جاري التسجيل...', 'Registering...') : t('سجل كوسيط', 'Register as Broker')}
+          </Button>
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-500">

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { query } from '../db.js';
+import { publicRequestSubmitSchema } from '@aqarkom/shared';
 
 const router: Router = Router();
 
@@ -8,7 +9,7 @@ router.get('/properties', async (req, res) => {
     const { city, district, property_type, transaction_type, min_price, max_price, bedrooms } = req.query;
     let sql = `SELECT id, title_ar, title_en, city, district, price, price_type, property_type, transaction_type,
                area_sqm, bedrooms, bathrooms, status, photos, latitude, longitude, listing_date
-               FROM properties WHERE status = 'active'`;
+               FROM properties WHERE status = 'active' AND deleted_at IS NULL`;
     const params: unknown[] = [];
     let idx = 1;
 
@@ -31,20 +32,22 @@ router.get('/properties', async (req, res) => {
 
 router.post('/requests', async (req, res) => {
   try {
-    const { name, phone, email, request_type, property_type, city, districts, budget_min, budget_max, bedrooms_min, description } = req.body;
-    if (!name || !phone || !budget_max) {
-      return res.status(400).json({ error: 'name, phone, budget_max required' });
+    const parsed = publicRequestSubmitSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const msg = parsed.error.errors.map((e) => e.message).join('; ');
+      return res.status(400).json({ error: msg, message_en: msg });
     }
+    const { name, phone, email, request_type, property_type, city, districts, budget_min, budget_max, bedrooms_min, description } = parsed.data;
 
     const result = await query<{ id: string }>(
       `INSERT INTO property_requests (seeker_id, request_type, property_type, city, districts, budget_min, budget_max, bedrooms_min, additional_requirements, status)
        VALUES ((SELECT id FROM users LIMIT 1), $1, $2, $3, $4, $5, $6, $7, $8, 'open')
        RETURNING id`,
       [
-        request_type || 'buy',
-        property_type || 'apartment',
-        city || 'الرياض',
-        JSON.stringify(districts || [city || 'الرياض']),
+        request_type ?? 'buy',
+        property_type ?? 'apartment',
+        city ?? 'الرياض',
+        JSON.stringify(Array.isArray(districts) ? districts : districts ? [districts] : [city ?? 'الرياض']),
         budget_min ? Number(budget_min) : null,
         Number(budget_max),
         bedrooms_min ? Number(bedrooms_min) : null,

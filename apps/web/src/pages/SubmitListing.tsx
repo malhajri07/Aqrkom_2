@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { PriceInput } from '../components/common/PriceInput';
+import { PhoneInput } from '../components/common/PhoneInput';
 import {
   HiOutlineDocumentText,
   HiOutlineCheckCircle,
@@ -29,7 +31,7 @@ const TRANSACTION_TYPES = [
 ];
 
 export function SubmitListing() {
-  const { t, isRtl } = useLanguage();
+  const { t, isRtl, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -56,7 +58,7 @@ export function SubmitListing() {
     setError('');
 
     try {
-      const res = await fetch('/api/listings/unverified', {
+      const res = await fetch('/api/v1/public/unverified-listings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -66,8 +68,9 @@ export function SubmitListing() {
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || t('حدث خطأ أثناء إرسال القائمة', 'Listing submission failed'));
+        const body = await res.json().catch(() => ({}));
+        const msg = body?.error?.message || body?.error || t('حدث خطأ أثناء إرسال القائمة', 'Listing submission failed');
+        throw new Error(msg);
       }
 
       setSuccess(true);
@@ -153,14 +156,11 @@ export function SubmitListing() {
                     <HiOutlinePhone className="w-4 h-4 inline me-1" />
                     {t('رقم الجوال', 'Phone')}
                   </label>
-                  <input
-                    type="tel"
-                    name="owner_phone"
+                  <PhoneInput
                     required
                     value={form.owner_phone}
-                    onChange={handleChange}
+                    onChange={(v) => setForm({ ...form, owner_phone: v })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
-                    dir="ltr"
                   />
                 </div>
               </div>
@@ -248,11 +248,10 @@ export function SubmitListing() {
                 <HiOutlineCurrencyDollar className="w-4 h-4 inline me-1" />
                 {t('السعر التقديري (ريال)', 'Estimated Price (SAR)')}
               </label>
-              <input
-                type="number"
-                name="estimated_price"
-                value={form.estimated_price}
-                onChange={handleChange}
+              <PriceInput
+                value={form.estimated_price ? Number(form.estimated_price) : undefined}
+                onChange={(v) => setForm({ ...form, estimated_price: v != null ? String(v) : '' })}
+                locale={language}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
               />
             </div>

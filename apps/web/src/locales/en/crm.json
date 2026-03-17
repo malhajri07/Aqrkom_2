@@ -1,0 +1,13 @@
+{
+  "contacts": "Contacts",
+  "leadPipeline": "Lead Pipeline",
+  "manageStages": "Manage lead stages",
+  "leads": "leads",
+  "unassigned": "unassigned",
+  "noLeads": "No leads",
+  "addContact": "Add Contact",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "phone": "Phone",
+  "email": "Email"
+}

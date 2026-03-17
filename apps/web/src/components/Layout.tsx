@@ -9,6 +9,8 @@ import {
   HiOutlineUsers,
   HiOutlineViewColumns,
   HiOutlineCurrencyDollar,
+  HiOutlineHomeModern,
+  HiOutlineDocumentText,
   HiOutlineChartBar,
   HiOutlineCog6Tooth,
   HiOutlineGlobeAlt,
@@ -27,6 +29,8 @@ const NAV_ICON_MAP: Record<string, IconType> = {
   users: HiOutlineUsers,
   kanban: HiOutlineViewColumns,
   handshake: HiOutlineCurrencyDollar,
+  home: HiOutlineHomeModern,
+  document: HiOutlineDocumentText,
   'bar-chart': HiOutlineChartBar,
   settings: HiOutlineCog6Tooth,
 };

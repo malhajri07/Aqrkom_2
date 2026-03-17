@@ -1,0 +1,20 @@
+{
+  "cancel": "Cancel",
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter"
+  },
+  "labels": {
+    "loading": "Loading...",
+    "noResults": "No results",
+    "error": "An error occurred"
+  }
+}

@@ -57,6 +57,12 @@ export function requireRole(...roles: string[]) {
   };
 }
 
+const JWT_ACCESS_EXPIRY = process.env.JWT_EXPIRY || '15m';
+
 export function signToken(payload: JwtPayload): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+}
+
+export function signAccessToken(payload: JwtPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRY } as jwt.SignOptions);
 }

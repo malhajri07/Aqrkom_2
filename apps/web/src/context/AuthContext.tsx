@@ -19,13 +19,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function getInitialToken(): string | null {
+  const fromStorage = getAuthToken();
+  if (fromStorage) return fromStorage;
+  const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const fromUrl = params.get('token');
+  if (fromUrl) {
+    setAuthToken(fromUrl);
+    if (typeof window !== 'undefined') window.history.replaceState({}, '', window.location.pathname);
+    return fromUrl;
+  }
+  return null;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<User | null>(null);
-  const [token, setTokenState] = useState<string | null>(getAuthToken());
+  const [token, setTokenState] = useState<string | null>(() => getInitialToken());
 
   useEffect(() => {
     if (token) {
-      // Decode JWT to get user info (payload is base64)
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUserState({

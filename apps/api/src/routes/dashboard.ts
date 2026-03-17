@@ -15,11 +15,11 @@ router.get('/kpis', async (req: AuthRequest, res) => {
     const params = isAdmin ? [] : [userId];
 
     const [listingsResult, requestsResult, pipelineResult, commissionResult, contactsResult, tasksResult] = await Promise.all([
-      query(`SELECT COUNT(*)::int as count FROM properties WHERE status = 'active' ${agentFilter}`, params),
-      query(`SELECT COUNT(*)::int as count FROM property_requests WHERE status = 'open'`, []),
-      query(`SELECT COALESCE(SUM(final_price), 0)::float as value FROM transactions WHERE status IN ('active', 'under_contract', 'pending_close') ${txAgentFilter}`, params),
-      query(`SELECT COALESCE(SUM(commission_amount), 0)::float as earned FROM transactions WHERE status = 'closed' ${txAgentFilter}`, params),
-      query(`SELECT COUNT(*)::int as count FROM contacts`, []),
+      query(`SELECT COUNT(*)::int as count FROM properties WHERE status = 'active' AND deleted_at IS NULL ${agentFilter}`, params),
+      query(`SELECT COUNT(*)::int as count FROM property_requests WHERE status = 'open' AND deleted_at IS NULL`, []),
+      query(`SELECT COALESCE(SUM(final_price), 0)::float as value FROM transactions WHERE status IN ('active', 'under_contract', 'pending_close') AND deleted_at IS NULL ${txAgentFilter}`, params),
+      query(`SELECT COALESCE(SUM(commission_amount), 0)::float as earned FROM transactions WHERE status = 'closed' AND deleted_at IS NULL ${txAgentFilter}`, params),
+      query(`SELECT COUNT(*)::int as count FROM contacts WHERE deleted_at IS NULL`, []),
       query(`SELECT COUNT(*)::int as count FROM tasks WHERE status IN ('pending', 'in_progress') ${isAdmin ? '' : 'AND (assigned_to = $1 OR assigned_to IS NULL)'}`, params),
     ]);
 
@@ -53,7 +53,7 @@ router.get('/pipeline-summary', async (_req, res) => {
       SELECT ps.id, ps.name_ar, ps.name_en, ps.stage_order, ps.color,
              COUNT(c.id)::int as contact_count
       FROM pipeline_stages ps
-      LEFT JOIN contacts c ON c.pipeline_stage_id = ps.id
+      LEFT JOIN contacts c ON c.pipeline_stage_id = ps.id AND c.deleted_at IS NULL
       GROUP BY ps.id, ps.name_ar, ps.name_en, ps.stage_order, ps.color
       ORDER BY ps.stage_order
     `);
@@ -83,13 +83,14 @@ router.get('/recent-properties', async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.userId;
     const isAdmin = req.user!.role === 'admin';
-    const filter = isAdmin ? '' : 'WHERE p.listing_agent_id = $1';
+    const filter = isAdmin ? '' : 'AND p.listing_agent_id = $1';
     const params = isAdmin ? [] : [userId];
 
     const result = await query(`
       SELECT p.id, p.title_ar, p.city, p.district, p.price, p.status, p.property_type,
              p.bedrooms, p.area_sqm, p.created_at
-      FROM properties p ${filter}
+      FROM properties p
+      WHERE p.deleted_at IS NULL ${filter}
       ORDER BY p.created_at DESC LIMIT 5
     `, params);
     res.json(result.rows);
@@ -102,17 +103,17 @@ router.get('/recent-properties', async (req: AuthRequest, res) => {
 router.get('/reports-summary', async (req: AuthRequest, res) => {
   try {
     const [propertiesByType, propertiesByCity, transactionsByType, transactionsByStatus, monthlyRevenue] = await Promise.all([
-      query(`SELECT property_type, COUNT(*)::int as count FROM properties GROUP BY property_type ORDER BY count DESC`),
-      query(`SELECT city, COUNT(*)::int as count FROM properties GROUP BY city ORDER BY count DESC LIMIT 10`),
-      query(`SELECT transaction_type, COUNT(*)::int as count FROM transactions GROUP BY transaction_type`),
-      query(`SELECT status, COUNT(*)::int as count FROM transactions GROUP BY status`),
+      query(`SELECT property_type, COUNT(*)::int as count FROM properties WHERE deleted_at IS NULL GROUP BY property_type ORDER BY count DESC`),
+      query(`SELECT city, COUNT(*)::int as count FROM properties WHERE deleted_at IS NULL GROUP BY city ORDER BY count DESC LIMIT 10`),
+      query(`SELECT transaction_type, COUNT(*)::int as count FROM transactions WHERE deleted_at IS NULL GROUP BY transaction_type`),
+      query(`SELECT status, COUNT(*)::int as count FROM transactions WHERE deleted_at IS NULL GROUP BY status`),
       query(`
         SELECT date_trunc('month', created_at) as month,
                COUNT(*)::int as deals,
                COALESCE(SUM(final_price), 0)::float as revenue,
                COALESCE(SUM(commission_amount), 0)::float as commission
         FROM transactions
-        WHERE created_at >= NOW() - INTERVAL '12 months'
+        WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '12 months'
         GROUP BY month ORDER BY month
       `),
     ]);

@@ -1,23 +1,42 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { Button } from '../components/ui/button';
+import { loginSchema, type LoginInput } from '@aqarkom/shared';
 
 export function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const err = searchParams.get('error');
+    if (err === 'nafath_failed') setError('فشل التحقق من نفاذ');
+  }, [searchParams]);
   const { login } = useAuth();
-  const { t, toggleLanguage, isRtl } = useLanguage();
+  const { t: tAuth } = useTranslation('auth');
+  const { t: tCommon } = useTranslation('common');
+  const { toggleLanguage, isRtl } = useLanguage();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const onSubmit = async (data: LoginInput) => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(data.email, data.password);
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -33,63 +52,96 @@ export function Login() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-holly-700">عقاركم</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1">
-              {t('تسجيل الدخول', 'Sign In')}
+              {tAuth('login')}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm">
+              <div role="alert" className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm" data-testid="login-error">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                {t('البريد الإلكتروني', 'Email')}
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {tAuth('email')}
               </label>
               <input
+                id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
+                {...register('email')}
+                className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 aria-invalid:border-red-500"
+                data-testid="login-email"
               />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600" role="alert">{errors.email.message}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                {t('كلمة المرور', 'Password')}
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {tAuth('password')}
               </label>
               <input
+                id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
+                {...register('password')}
+                className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 aria-invalid:border-red-500"
+                data-testid="login-password"
               />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600" role="alert">{errors.password.message}</p>
+              )}
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-holly-600 text-white rounded-lg font-medium hover:bg-holly-700 disabled:opacity-50"
+              className="w-full py-3"
+              data-testid="login-submit"
             >
-              {loading ? t('جاري...', 'Loading...') : t('تسجيل الدخول', 'Sign In')}
-            </button>
+              {loading ? tCommon('labels.loading') : tAuth('login')}
+            </Button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-slate-500">
-            {t('للاختبار: admin@aqarkom.com / Test123!', 'Demo: admin@aqarkom.com / Test123!')}
-          </p>
+          <div className="mt-4 space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full py-2.5"
+              data-testid="nafath-login-btn"
+              disabled={loading}
+              onClick={async () => {
+                setError('');
+                setLoading(true);
+                try {
+                  const { auth } = await import('../lib/api');
+                  const { nafathUrl } = await auth.nafathInit();
+                  window.location.href = nafathUrl;
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Nafath غير متاح');
+                  setLoading(false);
+                }
+              }}
+            >
+              {tAuth('loginWithNafath')}
+            </Button>
+            <p className="text-center text-xs text-slate-500">{tAuth('orUseEmail')}</p>
+            <p className="text-center text-sm text-slate-500">
+              {tAuth('demoCredentials')}
+            </p>
+          </div>
         </div>
 
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={toggleLanguage}
-          className="mt-4 w-full py-2 text-sm text-slate-500 hover:text-slate-700"
+          className="mt-4 w-full py-2 text-sm text-muted-foreground hover:text-foreground"
         >
           {isRtl ? 'English' : 'العربية'}
-        </button>
+        </Button>
       </div>
     </div>
   );

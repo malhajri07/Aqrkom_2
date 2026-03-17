@@ -1,5 +1,6 @@
 # Aqarkom - Local development
-# PRD: Docker, PostgreSQL, GCP Cloud Run
+# PRD: Docker, PostgreSQL, Redis, PostGIS, GCP Cloud Run
+# Sprint A: Redis for rate limit/sessions; PostGIS for future spatial queries
 
 services:
   api:
@@ -13,11 +14,13 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - DATABASE_URL=postgresql://aqarkom:aqarkom@db:5432/aqarkom
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - db
+      - redis
 
   db:
-    image: postgres:16-alpine
+    image: postgis/postgis:16-3.4
     environment:
       POSTGRES_USER: aqarkom
       POSTGRES_PASSWORD: aqarkom
@@ -28,5 +31,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/migrations:/docker-entrypoint-initdb.d
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
 volumes:
   postgres_data:
+  redis_data:

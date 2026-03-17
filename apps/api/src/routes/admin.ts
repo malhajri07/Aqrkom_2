@@ -11,11 +11,11 @@ router.get('/stats', async (_req, res) => {
   try {
     const [users, properties, transactions, requests, contacts, unverified] = await Promise.all([
       query('SELECT COUNT(*)::int as count FROM users'),
-      query('SELECT COUNT(*)::int as count FROM properties'),
-      query('SELECT COUNT(*)::int as count FROM transactions'),
-      query('SELECT COUNT(*)::int as count FROM property_requests'),
-      query('SELECT COUNT(*)::int as count FROM contacts'),
-      query(`SELECT COUNT(*)::int as count FROM contacts WHERE notes LIKE '%[UNVERIFIED LISTING]%'`),
+      query('SELECT COUNT(*)::int as count FROM properties WHERE deleted_at IS NULL'),
+      query('SELECT COUNT(*)::int as count FROM transactions WHERE deleted_at IS NULL'),
+      query('SELECT COUNT(*)::int as count FROM property_requests WHERE deleted_at IS NULL'),
+      query('SELECT COUNT(*)::int as count FROM contacts WHERE deleted_at IS NULL'),
+      query(`SELECT COUNT(*)::int as count FROM contacts WHERE deleted_at IS NULL AND notes LIKE '%[UNVERIFIED LISTING]%'`),
     ]);
 
     res.json({
@@ -48,7 +48,7 @@ router.get('/unverified-listings', async (_req, res) => {
   try {
     const result = await query(
       `SELECT id, first_name_ar, last_name_ar, phone, email, notes, created_at
-       FROM contacts WHERE notes LIKE '%[UNVERIFIED LISTING]%'
+       FROM contacts WHERE deleted_at IS NULL AND notes LIKE '%[UNVERIFIED LISTING]%'
        ORDER BY created_at DESC LIMIT 50`
     );
     res.json(result.rows);

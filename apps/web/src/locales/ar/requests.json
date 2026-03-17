@@ -1,0 +1,21 @@
+{
+  "title": "الطلبات",
+  "listTitle": "طلبات العقارات",
+  "subtitle": "صندوق الوارد - نمط ديل أب",
+  "submitRequest": "تقديم طلب عقاري",
+  "newRequest": "طلب عقاري جديد",
+  "requestType": "نوع الطلب",
+  "propertyType": "نوع العقار",
+  "city": "المدينة",
+  "districts": "الأحياء المفضلة",
+  "budget": "الميزانية",
+  "bedrooms": "غرف النوم",
+  "area": "المساحة",
+  "moveInDate": "تاريخ الانتقال المتوقع",
+  "additionalReqs": "متطلبات إضافية",
+  "noRequests": "لا توجد طلبات",
+  "status": "الحالة",
+  "offers": "العروض",
+  "view": "عرض",
+  "loading": "جاري التحميل..."
+}

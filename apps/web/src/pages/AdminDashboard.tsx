@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { unwrapEnvelope } from '../lib/api';
 import {
   HiOutlineUsers,
   HiOutlineBuildingOffice2,
@@ -67,11 +68,14 @@ export function AdminDashboard() {
     }
 
     Promise.all([
-      fetch('/api/admin/stats', { headers }).then((r) => (r.ok ? r.json() : null)),
-      fetch('/api/admin/users', { headers }).then((r) => (r.ok ? r.json() : [])),
-      fetch('/api/admin/unverified-listings', { headers }).then((r) => (r.ok ? r.json() : [])),
+      fetch('/api/v1/admin/stats', { headers }).then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/v1/admin/users', { headers }).then((r) => (r.ok ? r.json() : [])),
+      fetch('/api/v1/admin/unverified-listings', { headers }).then((r) => (r.ok ? r.json() : [])),
     ])
-      .then(([statsData, usersData, listingsData]) => {
+      .then(([statsRaw, usersRaw, listingsRaw]) => {
+        const statsData = statsRaw ? unwrapEnvelope<Record<string, unknown>>(statsRaw) : null;
+        const usersData = unwrapEnvelope<unknown[]>(usersRaw || []);
+        const listingsData = unwrapEnvelope<unknown[]>(listingsRaw || []);
         if (statsData) setStats(statsData);
         if (Array.isArray(usersData)) setUsers(usersData.slice(0, 10));
         if (Array.isArray(listingsData)) setListings(listingsData.slice(0, 10));
