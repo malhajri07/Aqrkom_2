@@ -136,17 +136,18 @@ export function PropertyForm() {
   };
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-2xl" data-testid="property-form-page">
       <h1 className="text-2xl font-bold mb-6">
         {isEdit ? t('تعديل الإعلان', 'Edit Listing') : t('إضافة إعلان عقاري', 'Add Property Listing')}
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6 shadow">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-slate-800 rounded-xl p-6 shadow" data-testid="property-form">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">{t('رقم ترخيص REGA', 'REGA License')}</label>
             <input
               required
+              data-testid="property-rega-license"
               value={form.rega_ad_license}
               onChange={(e) => setForm({ ...form, rega_ad_license: e.target.value })}
               className="w-full px-4 py-2 rounded-lg border"
@@ -155,6 +156,7 @@ export function PropertyForm() {
           <div>
             <label className="block text-sm font-medium mb-1">{t('نوع العقار', 'Property Type')}</label>
             <select
+              data-testid="property-type"
               value={form.property_type}
               onChange={(e) => setForm({ ...form, property_type: e.target.value })}
               className="w-full px-4 py-2 rounded-lg border"
@@ -169,6 +171,7 @@ export function PropertyForm() {
         <div>
           <label className="block text-sm font-medium mb-1">{t('نوع المعاملة', 'Transaction Type')}</label>
           <select
+            data-testid="property-transaction-type"
             value={form.transaction_type}
             onChange={(e) => setForm({ ...form, transaction_type: e.target.value })}
             className="w-full px-4 py-2 rounded-lg border"
@@ -183,6 +186,7 @@ export function PropertyForm() {
           <label className="block text-sm font-medium mb-1">{t('العنوان (عربي)', 'Title (Arabic)')}</label>
           <input
             required
+            data-testid="property-title-ar"
             value={form.title_ar}
             onChange={(e) => setForm({ ...form, title_ar: e.target.value })}
             className="w-full px-4 py-2 rounded-lg border"
@@ -193,6 +197,7 @@ export function PropertyForm() {
           <div>
             <label className="block text-sm font-medium mb-1">{t('المدينة', 'City')}</label>
             <select
+              data-testid="property-city"
               value={form.city}
               onChange={(e) => {
                 const newCity = e.target.value;
@@ -212,6 +217,7 @@ export function PropertyForm() {
             {neighborhoods.length > 0 ? (
               <select
                 required
+                data-testid="property-district"
                 value={form.district}
                 onChange={(e) => setForm({ ...form, district: e.target.value })}
                 className="w-full px-4 py-2 rounded-lg border"
@@ -224,6 +230,7 @@ export function PropertyForm() {
             ) : (
               <input
                 required
+                data-testid="property-district"
                 value={form.district}
                 onChange={(e) => setForm({ ...form, district: e.target.value })}
                 className="w-full px-4 py-2 rounded-lg border"
@@ -291,6 +298,7 @@ export function PropertyForm() {
           <div>
             <label className="block text-sm font-medium mb-1">{t('السعر (ر.س)', 'Price (SAR)')}</label>
             <PriceInput
+              data-testid="property-price"
               value={form.price ? Number(form.price) : undefined}
               onChange={(v) => setForm({ ...form, price: v != null ? String(v) : '' })}
               locale={language}
@@ -301,6 +309,7 @@ export function PropertyForm() {
             <label className="block text-sm font-medium mb-1">{t('المساحة (م²)', 'Area (m²)')}</label>
             <input
               type="number"
+              data-testid="property-area"
               value={form.area_sqm}
               onChange={(e) => setForm({ ...form, area_sqm: e.target.value })}
               className="w-full px-4 py-2 rounded-lg border"
@@ -328,7 +337,7 @@ export function PropertyForm() {
         </div>
 
         <div className="flex gap-4">
-          <button type="submit" disabled={loading} className="px-6 py-2 bg-primary-600 text-white rounded-lg">
+          <button type="submit" disabled={loading} className="px-6 py-2 bg-primary-600 text-white rounded-lg" data-testid="property-form-submit">
             {loading ? t('جاري...', 'Saving...') : t('حفظ', 'Save')}
           </button>
           <button type="button" onClick={() => navigate(-1)} className="px-6 py-2 border rounded-lg">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { API_BASE } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { registerSchema, type RegisterInput } from '@aqarkom/shared';
 import { Button } from '../components/ui/button';
@@ -41,7 +42,7 @@ export function BrokerRegister() {
   });
 
   const onSubmit = async (data: RegisterInput) => {
-    const res = await fetch('/api/v1/auth/register', {
+    const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...data, role: data.role || 'broker' }),

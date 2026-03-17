@@ -52,7 +52,9 @@ Remediation plan execution per `docs/ULTRA_EVALUATION_AND_PLAN.md`. Phase 0, Pha
 
 **Done (Sprint B):** Nafath init/callback ✓ REGA API + Redis cache ✓ NafathButton wired ✓ Block publish without REGA ✓
 
-**Next:** Sprint C (MapPicker, Hijri, Kanban) → Sprint D (E2E) → Sprint E (Terraform modules)
+**Done (Sprint D):** Page Objects, auth fixture, create-listing, submit-request, sale-pipeline, RTL specs.
+
+**Done (Sprint E):** Terraform modules: networking, cloud-sql, memorystore, secrets, cloud-storage, cloud-run (API + Worker). Cloud Build: migrate step, web build + deploy to GCS. VITE_API_URL support for production API base.
 
 ## Active Decisions
 

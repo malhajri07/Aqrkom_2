@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { transactions, unwrapEnvelope } from '../lib/api';
+import { API_BASE, transactions, unwrapEnvelope } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { HiOutlineArrowRight, HiOutlineCheckCircle, HiOutlineXCircle } from 'react-icons/hi2';
 
@@ -24,7 +24,7 @@ export function TransactionDetail() {
   useEffect(() => {
     if (id) {
       transactions.get(id).then((r) => setTx(r as Record<string, unknown>)).catch(() => setTx(null));
-      fetch(`/api/v1/transactions/${id}/rent-payments`, { headers: { Authorization: `Bearer ${localStorage.getItem('aqarkom_token')}` } })
+      fetch(`${API_BASE}/transactions/${id}/rent-payments`, { headers: { Authorization: `Bearer ${localStorage.getItem('aqarkom_token')}` } })
         .then((r) => (r.ok ? r.json() : []))
         .then((b) => setRentPayments(Array.isArray(unwrapEnvelope(b)) ? (unwrapEnvelope(b) as Record<string, unknown>[]) : []))
         .catch(() => setRentPayments([]));

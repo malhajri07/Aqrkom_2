@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { PhoneInput } from '../components/common/PhoneInput';
 import { PriceInput } from '../components/common/PriceInput';
@@ -59,7 +60,7 @@ export function PublicRequest() {
     setError('');
 
     try {
-      const res = await fetch('/api/v1/public/requests', {
+      const res = await fetch(`${API_BASE}/public/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -85,7 +86,7 @@ export function PublicRequest() {
   if (success) {
     return (
       <div className="min-h-screen bg-holly-50 flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className="bg-white rounded-2xl shadow-sm border border-holly-100 p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-holly-100 p-8 max-w-md w-full text-center" data-testid="request-success">
           <div className="w-16 h-16 rounded-full bg-holly-100 text-holly-600 flex items-center justify-center mx-auto mb-4">
             <HiOutlineCheckCircle className="w-8 h-8" />
           </div>
@@ -122,7 +123,7 @@ export function PublicRequest() {
   return (
     <div className="min-h-screen bg-holly-50 py-8 px-4" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-sm border border-holly-100 p-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-holly-100 p-8" data-testid="public-request-form">
           <div className="text-center mb-6">
             <div className="w-14 h-14 rounded-xl bg-holly-100 text-holly-600 flex items-center justify-center mx-auto mb-3">
               <HiOutlineClipboardDocumentList className="w-7 h-7" />
@@ -152,6 +153,7 @@ export function PublicRequest() {
                   type="text"
                   name="name"
                   required
+                  data-testid="request-name"
                   value={form.name}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
@@ -164,6 +166,7 @@ export function PublicRequest() {
                 </label>
                 <PhoneInput
                   required
+                  data-testid="request-phone"
                   value={form.phone}
                   onChange={(v) => setForm({ ...form, phone: v })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
@@ -179,6 +182,7 @@ export function PublicRequest() {
               <input
                 type="email"
                 name="email"
+                data-testid="request-email"
                 value={form.email}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
@@ -192,6 +196,7 @@ export function PublicRequest() {
                 </label>
                 <select
                   name="request_type"
+                  data-testid="request-type"
                   value={form.request_type}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
@@ -208,6 +213,7 @@ export function PublicRequest() {
                 </label>
                 <select
                   name="property_type"
+                  data-testid="request-property-type"
                   value={form.property_type}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
@@ -227,6 +233,7 @@ export function PublicRequest() {
                 type="text"
                 name="city"
                 required
+                data-testid="request-city"
                 value={form.city}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-holly-500 focus:border-holly-500"
@@ -241,6 +248,7 @@ export function PublicRequest() {
                   {t('أقل ميزانية', 'Min Budget')}
                 </label>
                 <PriceInput
+                  data-testid="request-min-budget"
                   value={form.min_budget ? Number(form.min_budget) : undefined}
                   onChange={(v) => setForm({ ...form, min_budget: v != null ? String(v) : '' })}
                   locale={language}
@@ -252,6 +260,7 @@ export function PublicRequest() {
                   {t('أعلى ميزانية', 'Max Budget')}
                 </label>
                 <PriceInput
+                  data-testid="request-max-budget"
                   value={form.max_budget ? Number(form.max_budget) : undefined}
                   onChange={(v) => setForm({ ...form, max_budget: v != null ? String(v) : '' })}
                   locale={language}
@@ -278,6 +287,7 @@ export function PublicRequest() {
               </label>
               <textarea
                 name="description"
+                data-testid="request-description"
                 value={form.description}
                 onChange={handleChange}
                 rows={3}
@@ -289,6 +299,7 @@ export function PublicRequest() {
             <button
               type="submit"
               disabled={loading}
+              data-testid="request-submit"
               className="w-full py-3 bg-holly-600 text-white font-semibold rounded-lg hover:bg-holly-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? t('جاري الإرسال...', 'Submitting...') : t('إرسال الطلب', 'Submit Request')}

@@ -39,6 +39,12 @@
 - Drizzle/Prisma migration
 - Refresh token flow
 
+### Done (Sprint D - E2E)
+- **Page Objects:** LoginPage, DashboardPage, PropertyListPage, PropertyFormPage, PublicRequestPage, TransactionsPage
+- **Auth fixture:** test.extend with loginPage, dashboardPage
+- **E2E specs:** create-listing, submit-request, sale-pipeline, layout-rtl, forms-rtl
+- **data-testid:** PropertyForm (rega, type, transaction-type, title-ar, city, district, price, area, submit), PublicRequest (name, phone, email, type, property-type, city, min/max-budget, description, submit, success)
+
 ### Done (Phase 1/3/4)
 - **Soft deletes:** Migration 004, `deleted_at` on properties/contacts/requests/transactions
 - **Zod validators:** properties, contacts, requests, publicRequestSubmitSchema; wired in API (properties, contacts, requests, public/requests)

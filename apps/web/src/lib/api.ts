@@ -1,4 +1,6 @@
-const API_BASE = '/api/v1';
+export const API_BASE = import.meta.env.VITE_API_URL
+  ? `${String(import.meta.env.VITE_API_URL).replace(/\/$/, '')}/api/v1`
+  : '/api/v1';
 
 let authToken: string | null = localStorage.getItem('aqarkom_token');
 
@@ -121,7 +123,7 @@ export const properties = {
     );
   },
   uploadPhotos: (id: string, formData: FormData) =>
-    fetch(`/api/v1/properties/${id}/photos`, {
+    fetch(`${API_BASE}/properties/${id}/photos`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${getAuthToken()}` },
       body: formData,
@@ -155,7 +157,7 @@ export const contacts = {
       body: JSON.stringify({ contacts, fieldMapping }),
     }),
   export: async () => {
-    const res = await fetch('/api/v1/contacts/export', {
+    const res = await fetch(`${API_BASE}/contacts/export`, {
       headers: { Authorization: `Bearer ${getAuthToken()}` },
     });
     if (!res.ok) throw new Error('Export failed');

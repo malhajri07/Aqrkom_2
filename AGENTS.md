@@ -31,6 +31,12 @@ Aqarkom is an Arabic-first Saudi Real Estate CRM (pnpm monorepo). Three workspac
 - Migrations are plain SQL files in `db/migrations/` and are applied directly with `psql` (not an ORM migration tool).
 - The web frontend is RTL Arabic-first. The login page shows demo credentials for testing.
 
+### E2E (Playwright)
+
+- **Install browsers:** `pnpm test:e2e:install` (Chromium only) or `pnpm test:e2e:install:all`
+- **Run E2E:** `pnpm test:e2e` (starts dev server automatically)
+- **If install fails (ENOTFOUND cdn.playwright.dev):** Network/DNS issue. Try: (1) different network/VPN, (2) `pnpm test:e2e:install` for smaller Chromium-only download, (3) Docker: `docker run -v $(pwd):/app -w /app mcr.microsoft.com/playwright:v1.48.0-noble pnpm test:e2e` (browsers pre-installed)
+
 ### Standard commands
 
 See `package.json` scripts. Key commands: `pnpm dev`, `pnpm build`, `pnpm dev:api`, `pnpm dev:web`.

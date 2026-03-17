@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { unwrapEnvelope } from '../lib/api';
+import { API_BASE, unwrapEnvelope } from '../lib/api';
 import {
   HiOutlineUsers,
   HiOutlineBuildingOffice2,
@@ -68,9 +68,9 @@ export function AdminDashboard() {
     }
 
     Promise.all([
-      fetch('/api/v1/admin/stats', { headers }).then((r) => (r.ok ? r.json() : null)),
-      fetch('/api/v1/admin/users', { headers }).then((r) => (r.ok ? r.json() : [])),
-      fetch('/api/v1/admin/unverified-listings', { headers }).then((r) => (r.ok ? r.json() : [])),
+      fetch(`${API_BASE}/admin/stats`, { headers }).then((r) => (r.ok ? r.json() : null)),
+      fetch(`${API_BASE}/admin/users`, { headers }).then((r) => (r.ok ? r.json() : [])),
+      fetch(`${API_BASE}/admin/unverified-listings`, { headers }).then((r) => (r.ok ? r.json() : [])),
     ])
       .then(([statsRaw, usersRaw, listingsRaw]) => {
         const statsData = statsRaw ? unwrapEnvelope<Record<string, unknown>>(statsRaw) : null;

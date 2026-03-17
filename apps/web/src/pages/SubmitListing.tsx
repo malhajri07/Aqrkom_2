@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { PriceInput } from '../components/common/PriceInput';
 import { PhoneInput } from '../components/common/PhoneInput';
@@ -58,7 +59,7 @@ export function SubmitListing() {
     setError('');
 
     try {
-      const res = await fetch('/api/v1/public/unverified-listings', {
+      const res = await fetch(`${API_BASE}/public/unverified-listings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

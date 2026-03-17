@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { APIProvider, Map, AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-google-maps';
 import { useLanguage } from '../context/LanguageContext';
-import { unwrapEnvelope } from '../lib/api';
+import { API_BASE, unwrapEnvelope } from '../lib/api';
 import {
   HiOutlineMagnifyingGlass,
   HiOutlineAdjustmentsHorizontal,
@@ -111,7 +111,7 @@ export function SearchMap() {
   const fetchProperties = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/public/properties');
+      const res = await fetch(`${API_BASE}/public/properties`);
       if (res.ok) {
         const body = await res.json();
         const data = unwrapEnvelope<Property[]>(body);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { unwrapEnvelope } from '../lib/api';
+import { API_BASE, unwrapEnvelope } from '../lib/api';
 import { HiOutlineDocumentText, HiOutlineFolder } from 'react-icons/hi2';
 
 export function DocumentLibrary() {
@@ -14,7 +14,7 @@ export function DocumentLibrary() {
 
   useEffect(() => {
     if (entityId) {
-      fetch(`/api/v1/documents?entity_type=${entityType}&entity_id=${entityId}`, {
+      fetch(`${API_BASE}/documents?entity_type=${entityType}&entity_id=${entityId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('aqarkom_token')}` },
       })
         .then((r) => (r.ok ? r.json() : []))
@@ -24,7 +24,7 @@ export function DocumentLibrary() {
         })
         .catch(() => setDocs([]));
     }
-    fetch('/api/v1/documents/templates', { headers: { Authorization: `Bearer ${localStorage.getItem('aqarkom_token')}` } })
+    fetch(`${API_BASE}/documents/templates`, { headers: { Authorization: `Bearer ${localStorage.getItem('aqarkom_token')}` } })
       .then((r) => (r.ok ? r.json() : []))
       .then((b) => {
         const t = unwrapEnvelope<unknown[]>(b);

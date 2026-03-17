@@ -11,16 +11,26 @@ terraform plan -var-file=environments/dev.tfvars
 terraform apply -var-file=environments/dev.tfvars
 ```
 
-## Structure
+## Modules
 
-- `main.tf` - Provider, project services
-- `variables.tf` - Input variables
-- `outputs.tf` - Output values
-- `environments/` - Environment-specific tfvars
-- `modules/` - Reusable modules (cloud-run, cloud-sql, etc.) - to be added
+| Module | Description |
+|--------|-------------|
+| `networking` | VPC, subnet, VPC Access Connector, private service for Cloud SQL |
+| `cloud-sql` | PostgreSQL 16 (optional: `enable_cloud_sql=true`) |
+| `memorystore` | Redis 7 (optional: `enable_memorystore=true`) |
+| `secrets` | Secret Manager (DATABASE_URL, REDIS_URL, JWT_SECRET) |
+| `cloud-storage` | Buckets for web static + uploads |
+| `cloud-run` | API + Worker services (optional: `enable_cloud_run=true`) |
+
+## Variables
+
+- `project_id` — GCP project ID
+- `db_password` — Cloud SQL password (when `enable_cloud_sql=true`)
+- `enable_cloud_sql`, `enable_memorystore`, `enable_cloud_run` — Toggle modules
 
 ## Required
 
 1. Create `environments/dev.tfvars` with your `project_id`
 2. Enable billing on the GCP project
 3. For remote state: create GCS bucket, uncomment backend in main.tf
+4. Cloud Build: set `_API_URL`, `_WEB_BUCKET`, `_DATABASE_URL` in trigger
