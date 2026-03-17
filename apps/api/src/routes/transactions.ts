@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { transactionUpdateSchema } from '@aqarkom/shared';
 import { query } from '../db.js';
 import { authMiddleware, AuthRequest, requireRole } from '../middleware/auth.js';
+import { createEjarContract } from '../integrations/ejar/ejar.service.js';
+import { generateCommissionInvoice } from '../integrations/zatca/zatca.service.js';
 
 const router: Router = Router();
 
@@ -167,6 +169,79 @@ router.post('/:id/rent-payments', requireRole('admin', 'broker', 'agent'), async
   } catch (err) {
     console.error('Rent payment add error:', err);
     res.status(500).json({ error: 'Failed to add rent payment' });
+  }
+});
+
+// Register Ejar contract (Phase 2)
+
+router.post('/:id/ejar/register', requireRole('admin', 'broker', 'agent'), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const r = await query(
+      `SELECT t.*, p.city, p.district, c.first_name_ar, c.last_name_ar, c.phone, c.email
+       FROM transactions t
+       JOIN properties p ON t.property_id = p.id AND p.deleted_at IS NULL
+       JOIN contacts c ON t.client_contact_id = c.id AND c.deleted_at IS NULL
+       WHERE t.id = $1 AND t.deleted_at IS NULL`,
+      [id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Transaction not found' });
+    const t = r.rows[0] as Record<string, unknown>;
+    if (t.transaction_type !== 'lease') return res.status(400).json({ error: 'Ejar is for lease transactions only' });
+
+    const data = {
+      transactionId: id,
+      propertyType: 'residential' as const,
+      city: String(t.city || ''),
+      district: String(t.district || ''),
+      landlordName: 'Landlord', // TODO: from owner contact
+      landlordPhone: String(t.phone || ''),
+      tenantName: `${t.first_name_ar || ''} ${t.last_name_ar || ''}`.trim(),
+      tenantPhone: String(t.phone || ''),
+      tenantEmail: t.email ? String(t.email) : undefined,
+      startDate: t.lease_start ? String(t.lease_start).slice(0, 10) : new Date().toISOString().slice(0, 10),
+      endDate: t.lease_end ? String(t.lease_end).slice(0, 10) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      rentAmount: Number(t.lease_monthly_rent) || 0,
+      paymentFrequency: 'monthly' as const,
+    };
+
+    const result = await createEjarContract(data);
+    await query('UPDATE transactions SET ejar_contract_number = $1, updated_at = NOW() WHERE id = $2', [result.contractNumber, id]);
+    res.json({ contractNumber: result.contractNumber, status: result.status, message: result.message });
+  } catch (err) {
+    console.error('Ejar register error:', err);
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to register Ejar contract' });
+  }
+});
+
+// Get ZATCA commission invoice (Phase 2)
+router.get('/:id/invoice', async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const r = await query(
+      `SELECT t.*, c.first_name_ar, c.last_name_ar
+       FROM transactions t
+       JOIN contacts c ON t.client_contact_id = c.id AND c.deleted_at IS NULL
+       WHERE t.id = $1 AND t.deleted_at IS NULL`,
+      [id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Transaction not found' });
+    const t = r.rows[0] as Record<string, unknown>;
+    const commission = Number(t.commission_amount) || 0;
+    const buyerName = `${t.first_name_ar || ''} ${t.last_name_ar || ''}`.trim() || 'Client';
+
+    const invoice = generateCommissionInvoice({
+      transactionId: id,
+      buyerName,
+      description: 'عمولة عقارية / Real Estate Commission',
+      amountExclVat: commission,
+      invoiceNumber: `INV-${id.slice(0, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`,
+    });
+
+    res.json(invoice);
+  } catch (err) {
+    console.error('Invoice error:', err);
+    res.status(500).json({ error: 'Failed to generate invoice' });
   }
 });
 

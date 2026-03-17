@@ -64,6 +64,14 @@ resource "google_project_service" "storage" {
   service = "storage.googleapis.com"
 }
 
+# Cloud Armor WAF (SQLi, XSS, rate limit) — attach to LB when using custom domain
+module "cloud_armor" {
+  source = "./modules/cloud-armor"
+
+  project_id   = var.project_id
+  project_name = var.project_name
+}
+
 # Networking (VPC, subnet, connector, private service)
 module "networking" {
   source = "./modules/networking"

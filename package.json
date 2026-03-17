@@ -17,6 +17,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install chromium",
     "test:e2e:install:all": "playwright install",
+    "load:property-search": "k6 run load-tests/property-search.js",
+    "load:auth": "k6 run load-tests/auth.js",
     "db:migrate": "pnpm --filter @aqarkom/api db:migrate",
     "db:seed": "pnpm --filter @aqarkom/api exec tsx src/seed.ts",
     "worker": "pnpm --filter @aqarkom/api worker"
