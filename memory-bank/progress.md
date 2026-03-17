@@ -60,6 +60,12 @@
 - **BrokerRegister:** React Hook Form + zodResolver(registerSchema), shadcn Button, field-level validation
 - **Code-splitting:** React.lazy + Suspense for all routes; separate chunks per page
 
+### Done (Hijri & Saudi)
+- **HijriDatePicker:** RequestSubmit move-in date
+- **formatDualDate:** Dashboard task due_date, TransactionDetail payment_date, RentRoll lease_start/lease_end
+- **Property types:** duplex, townhouse, penthouse, compound, tower, house added to PROPERTY_TYPES
+- **typecheck script:** `pnpm typecheck` (runs build)
+
 ### Done (Zod & Components)
 - **Zod for PUT/PATCH:** contact update, transaction update (property already had it)
 - **PriceInput:** SAR price input with ر.س formatting; wired in PropertyForm, SubmitListing, Transactions, PublicRequest (min/max budget)
