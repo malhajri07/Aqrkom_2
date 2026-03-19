@@ -239,16 +239,18 @@ export function SearchMap() {
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-holly-100 text-holly-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              aria-label={t('عرض شبكي', 'Grid view')}
               title={t('عرض شبكي', 'Grid view')}
+              className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-holly-100 text-holly-700' : 'text-slate-500 hover:bg-slate-100'}`}
             >
               <HiOutlineSquares2X2 className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => setViewMode('map')}
-              className={`p-2 rounded-lg ${viewMode === 'map' ? 'bg-holly-100 text-holly-700' : 'text-slate-500 hover:bg-slate-100'}`}
+              aria-label={t('عرض الخريطة', 'Map view')}
               title={t('عرض الخريطة', 'Map view')}
+              className={`p-2 rounded-lg ${viewMode === 'map' ? 'bg-holly-100 text-holly-700' : 'text-slate-500 hover:bg-slate-100'}`}
             >
               <HiOutlineMap className="w-5 h-5" />
             </button>

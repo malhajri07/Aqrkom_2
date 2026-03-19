@@ -5,14 +5,17 @@ export class PropertyFormPage {
 
   async gotoNew() {
     await this.page.goto('/properties/new');
+    await this.page.waitForURL(/\/properties\/new/);
   }
 
   async gotoEdit(id: string) {
     await this.page.goto(`/properties/${id}/edit`);
+    await this.page.waitForURL(new RegExp(`/properties/${id}/edit`));
   }
 
   async expectLoaded() {
-    await this.page.getByTestId('property-form-page').waitFor({ state: 'visible' });
+    // Wait for first form field (more reliable than form wrapper with lazy-loaded content)
+    await this.page.getByTestId('property-rega-license').waitFor({ state: 'visible' });
   }
 
   async fillRegaLicense(value: string) {

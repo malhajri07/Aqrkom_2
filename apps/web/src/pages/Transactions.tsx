@@ -41,7 +41,7 @@ export function Transactions() {
           <h1 className="text-2xl font-bold">{t('title')}</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">{t('subtitle')}</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium">
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium" data-testid="transaction-new-btn">
           {showForm ? tCommon('buttons.cancel') : t('newTransaction')}
         </button>
       </header>

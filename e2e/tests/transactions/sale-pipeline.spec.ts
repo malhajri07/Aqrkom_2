@@ -20,7 +20,7 @@ test.describe('Transactions / Sale Pipeline', () => {
     await page.goto('/transactions');
     await page.getByTestId('transactions-page').waitFor({ state: 'visible' });
 
-    await page.getByRole('button', { name: /صفقة جديدة|New Transaction/i }).click();
+    await page.getByTestId('transaction-new-btn').click();
     await expect(page.locator('form')).toBeVisible();
   });
 });

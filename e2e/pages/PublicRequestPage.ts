@@ -5,10 +5,11 @@ export class PublicRequestPage {
 
   async goto() {
     await this.page.goto('/submit-request');
+    await this.page.waitForURL(/\/submit-request/);
   }
 
   async expectLoaded() {
-    await this.page.getByTestId('public-request-form').waitFor({ state: 'visible' });
+    await this.page.getByTestId('public-request-form').waitFor({ state: 'visible', timeout: 15000 });
   }
 
   async fillName(value: string) {

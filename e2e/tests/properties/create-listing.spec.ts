@@ -30,7 +30,8 @@ test.describe('Create Property Listing', () => {
 
   test('property form shows required validation', async ({ page }) => {
     await page.goto('/properties/new');
-    await page.getByTestId('property-form').waitFor({ state: 'visible' });
+    await page.waitForURL(/\/properties\/new/);
+    await page.getByTestId('property-rega-license').waitFor({ state: 'visible' });
 
     await page.getByTestId('property-form-submit').click();
     await expect(page.getByTestId('property-form')).toBeVisible();

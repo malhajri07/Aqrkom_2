@@ -23,6 +23,7 @@ test.describe('Submit Property Request (Public)', () => {
 
   test('request form is visible and has required fields', async ({ page }) => {
     await page.goto('/submit-request');
+    await page.waitForURL(/\/submit-request/);
     await page.getByTestId('public-request-form').waitFor({ state: 'visible' });
 
     await expect(page.getByTestId('request-name')).toBeVisible();

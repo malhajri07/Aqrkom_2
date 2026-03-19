@@ -44,8 +44,11 @@ export async function api<T>(
 
   if (res.status === 401) {
     setAuthToken(null);
-    window.location.href = '/login';
-    throw new Error('Unauthorized');
+    if (!path.startsWith('/auth/login')) {
+      window.location.href = '/login';
+    }
+    const msg = (body as { error?: string }).error || 'Unauthorized';
+    throw new Error(msg);
   }
 
   if (!res.ok) {

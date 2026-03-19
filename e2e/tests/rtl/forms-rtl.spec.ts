@@ -12,6 +12,7 @@ test.describe('RTL Forms', () => {
 
   test('public request form is RTL', async ({ page }) => {
     await page.goto('/submit-request');
+    await page.waitForURL(/\/submit-request/);
     await page.getByTestId('public-request-form').waitFor({ state: 'visible' });
 
     const html = page.locator('html');
